@@ -56,7 +56,7 @@ public class SocketPool implements Closeable {
         try {
             pool.clear();
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
     }
 }

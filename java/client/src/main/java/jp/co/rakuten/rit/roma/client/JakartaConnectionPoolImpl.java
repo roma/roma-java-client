@@ -28,13 +28,13 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
         try {
             socket = spool.get();
         } catch (NoSuchElementException e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         } catch (IllegalStateException e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         } catch (ConnectException e) {
             throw e;
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
         return new Connection(socket);
     }
@@ -44,7 +44,7 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
         try {
             spool.put(conn.sock);
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
     }
 
@@ -55,7 +55,7 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
                 spool.close();
             }
         } catch (IOException e) { // ignore
-            // throw new IOException(e);
+            // throw new IOException(e.getMessage());
         }
     }
 
@@ -64,7 +64,7 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
             try {
                 spool.close();
             } catch (Exception e) { // ignore
-                // throw new IOException(e);
+                // throw new IOException(e.getMessage());
             }
         }
         pool.clear();
