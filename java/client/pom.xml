@@ -90,6 +90,7 @@
 				<configuration>
 					<author>true</author>
 					<source>1.5</source>
+					<target>1.5</target>
 					<encoding>UTF-8</encoding>
 					<charset>UTF-8</charset>
 					<docencoding>UTF-8</docencoding>
@@ -107,8 +108,22 @@
 	</build>
 	<profiles>
 	</profiles>
-	<repositories>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>repo1.maven.org</id>
+            <name>repo1.maven.org Maven2 Repository</name>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>repo2.maven.org</id>
+            <name>repo2.maven.org Maven2 Repository</name>
+            <url>http://repo2.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>local</id>
+            <url>file:m2repo</url>
+        </repository>
+    </repositories>
 	<distributionManagement>
 	</distributionManagement>
 	<reporting>
