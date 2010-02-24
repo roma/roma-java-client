@@ -21,6 +21,7 @@ public class CommandContext extends HashMap<String, Object> {
     public static final String NODE = "NODE";
     public static final String ROUTING_TABLE = "ROUTINGTABLE";
     public static final String CONNECTION_POOL = "CONNECTIONPOOL";
+    public static final String CAS_ID = "CAS_ID";
 
     public CommandContext() {
         super();

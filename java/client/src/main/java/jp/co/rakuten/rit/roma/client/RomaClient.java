@@ -127,6 +127,11 @@ public interface RomaClient {
     Map<String, byte[]> gets(List<String> keys, boolean useThreads)
             throws ClientException;
 
+    Map<String, CasValue> getsWithCasID(List<String> keys) throws ClientException;
+    
+    Map<String, CasValue> getsWithCasID(List<String> keys, boolean useThreads)
+            throws ClientException;
+
     /**
      * Append the given value to the existing value.
      * 
@@ -201,6 +206,29 @@ public interface RomaClient {
      * @throws ClientException
      */
     BigInteger decr(String key, int count) throws ClientException;
+
+    /**
+     * CAS operation.
+     *
+     * @param key
+     * @param casId
+     * @param value
+     * @return CasResponse
+     * @throws ClientException
+     */
+    CasResponse cas(String key, long casID, byte[] value) throws ClientException;
+
+    /**
+     * CAS operation.
+     * 
+     * @param key
+     * @param casId
+     * @param value
+     * @param expiry
+     * @return CasResponse
+     * @throws ClientException
+     */
+    CasResponse cas(String key, long casID, byte[] value, Date expiry) throws ClientException;
 
     boolean exec(Command command, CommandContext context)
             throws CommandException;
