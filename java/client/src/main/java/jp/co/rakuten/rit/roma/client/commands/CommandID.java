@@ -12,6 +12,8 @@ public interface CommandID {
     
     int GETS_OPT = 52;
     
+    int ADD = 53;
+    
     int SET = 54;
 
     int APPEND = 55;
@@ -31,6 +33,8 @@ public interface CommandID {
     String STR_GET = "get";
     
     String STR_GETS = "gets";
+    
+    String STR_ADD = "add";
 
     String STR_SET = "set";
 

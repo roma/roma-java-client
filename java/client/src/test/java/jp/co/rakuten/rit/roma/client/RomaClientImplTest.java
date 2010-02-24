@@ -288,5 +288,19 @@ public class RomaClientImplTest extends TestCase {
 		Thread.sleep(3000);
 		assertFalse(CLIENT.prepend(KEY, "04".getBytes()));
 	}
-
+	
+    public void testAdd01() throws Exception {
+        try {
+            KEY = KEY_PREFIX + "testAdd01";
+            assertTrue(CLIENT.add(KEY + "01", "01".getBytes()));
+            assertFalse(CLIENT.add(KEY + "01", "02".getBytes()));
+            List<String> keys = new ArrayList<String>();
+            keys.add(KEY + "01");
+            Map<String, byte[]> values = CLIENT.gets(keys);
+            assertEquals(1, values.size());
+            assertEquals("01", new String(values.get(KEY + "01")));
+        } finally {
+            CLIENT.delete(KEY + "01");
+        }
+    }
 }

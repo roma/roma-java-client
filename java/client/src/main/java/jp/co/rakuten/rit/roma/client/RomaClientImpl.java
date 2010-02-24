@@ -367,6 +367,21 @@ public class RomaClientImpl extends AbstractRomaClient {
         }
     }
 
+    /**
+     * @see RomaClient#add(String, byte[])
+     */
+    public boolean add(String key, byte[] value) throws ClientException {
+        return add(key, value, new Date(0));
+    }
+
+    /**
+     * @see RomaClient#add(String, byte[], Date)
+     */
+    public boolean add(String key, byte[] value, Date expiry)
+            throws ClientException {
+        return update(CommandID.ADD, key, value, expiry);
+    }
+
     public boolean exec(Command command, CommandContext context)
             throws CommandException {
         return command.execute(context);

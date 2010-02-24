@@ -204,4 +204,30 @@ public interface RomaClient {
 
     boolean exec(Command command, CommandContext context)
             throws CommandException;
+
+    /**
+     * Store the value in ROMA if key does not exist.
+     * 
+     * @param key
+     *            key to store value
+     * @param value
+     *            value to store
+     * @return true, if the value was successfully stored
+     */
+    boolean add(String key, byte[] value) throws ClientException;
+
+    /**
+     * Store the value in ROMA if key does not exist.
+     * 
+     * @param key
+     *            key to store value
+     * @param value
+     *            value to store
+     * @param expiry
+     *            expire time
+     * @return true, if the value was successfully stored
+     * @throws ClientException
+     */
+    boolean add(String key, byte[] value, Date expiry) throws ClientException;
+
 }
