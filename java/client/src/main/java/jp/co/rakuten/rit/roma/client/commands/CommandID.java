@@ -26,6 +26,12 @@ public interface CommandID {
 
     int DECREMENT = 59;
 
+    int GETS_WITH_CASID = 60;
+
+    int GETS_WITH_CASID_OPT = 61;
+
+    int CAS = 62;
+
     String STR_CRLF = "\r\n";
 
     String STR_WHITE_SPACE = " ";
@@ -47,6 +53,8 @@ public interface CommandID {
     String STR_INCREMENT = "incr";
 
     String STR_DECREMENT = "decr";
+    
+    String STR_CAS = "cas";
 
     // routing table command
     int ROUTING_DUMP = 80;

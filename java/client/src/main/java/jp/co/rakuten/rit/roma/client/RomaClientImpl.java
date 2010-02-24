@@ -286,6 +286,21 @@ public class RomaClientImpl extends AbstractRomaClient {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, CasValue> getsWithCasID(List<String> keys) throws ClientException {
+        return getsWithCasID(keys, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, CasValue> getsWithCasID(List<String> keys, boolean useThreads)
+            throws ClientException {
+        if (useThreads) {
+            return (Map<String, CasValue>) gets(CommandID.GETS_WITH_CASID_OPT, keys);            
+        } else {
+            return (Map<String, CasValue>) gets(CommandID.GETS_WITH_CASID, keys);
+        }
+    }
+    
     protected Object gets(int commandID, List<String> keys)
             throws ClientException {
         if (keys.size() == 0) {
@@ -382,6 +397,35 @@ public class RomaClientImpl extends AbstractRomaClient {
         return update(CommandID.ADD, key, value, expiry);
     }
 
+    public CasResponse cas(String key, long casID, byte[] value)
+        throws ClientException {
+        return cas(key, casID, value, new Date(0));
+    }
+
+    public CasResponse cas(String key, long casID, byte[] value, Date expiry)
+        throws ClientException {
+        int commandID = CommandID.CAS;
+        CommandContext context = new CommandContext();
+        try {
+            context.put(CommandContext.CONNECTION_POOL, connPool);
+            context.put(CommandContext.ROUTING_TABLE, routingTable);
+            context.put(CommandContext.KEY, key);
+            context.put(CommandContext.CAS_ID, casID);
+            context.put(CommandContext.VALUE, value);
+            context.put(CommandContext.EXPIRY, expiry);
+            context.put(CommandContext.COMMAND_ID, commandID);
+            Command command = commandGenerator.getCommand(commandID);
+            boolean ret = exec(command, context);
+            if (ret) {
+                return (CasResponse)context.get(CommandContext.RESULT);
+            } else {
+                return null;
+              }
+        } catch (CommandException e) {
+            throw toClientException(e);
+        }
+    }
+    
     public boolean exec(Command command, CommandContext context)
             throws CommandException {
         return command.execute(context);

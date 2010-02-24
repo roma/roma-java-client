@@ -303,4 +303,30 @@ public class RomaClientImplTest extends TestCase {
             CLIENT.delete(KEY + "01");
         }
     }
+
+    public void testGetsAndCas01() throws Exception {
+        try {
+            KEY = KEY_PREFIX + "testGetsAndCas01";
+            assertTrue(CLIENT.put(KEY + "01", "01".getBytes()));
+            assertTrue(CLIENT.put(KEY + "02", "02".getBytes()));
+            assertTrue(CLIENT.put(KEY + "03", "03".getBytes()));
+            List<String> keys = new ArrayList<String>();
+            keys.add(KEY + "01");
+            keys.add(KEY + "02");
+            keys.add(KEY + "03");
+            Map<String, CasValue> values = CLIENT.getsWithCasID(keys);
+            assertEquals(3, values.size());
+            assertEquals("01", new String(values.get(KEY + "01").getValue()));
+            assertEquals("02", new String(values.get(KEY + "02").getValue()));
+            assertEquals("03", new String(values.get(KEY + "03").getValue()));
+            
+            assertEquals(CasResponse.OK, CLIENT.cas(KEY + "01", values.get(KEY + "01").getCas(), "001".getBytes()));
+            assertEquals(CasResponse.NOT_FOUND, CLIENT.cas(KEY + "04", values.get(KEY + "01").getCas(), "001".getBytes()));
+            assertEquals(CasResponse.EXISTS, CLIENT.cas(KEY + "01", values.get(KEY + "01").getCas(), "0001".getBytes()));
+        } finally {
+            CLIENT.delete(KEY + "01");
+            CLIENT.delete(KEY + "02");
+            CLIENT.delete(KEY + "03");
+        }
+    }
 }

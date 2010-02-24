@@ -30,6 +30,10 @@ public class CommandGeneratorImpl implements CommandGenerator {
                 TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.GETS_OPT, GetsOptCommand.class,
                     new Class[] { TimeoutFilter.class, FailOverFilter.class });
+            createCommand(CommandID.GETS_WITH_CASID, GetsWithCasIDCommand.class, new Class[] {
+                TimeoutFilter.class, FailOverFilter.class });
+            createCommand(CommandID.GETS_WITH_CASID_OPT, GetsWithCasIDOptCommand.class,
+                    new Class[] { TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.SET, SetCommand.class, new Class[] {
                     TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.APPEND, AppendCommand.class, new Class[] {
@@ -42,6 +46,8 @@ public class CommandGeneratorImpl implements CommandGenerator {
                     TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.DECREMENT, DecrCommand.class, new Class[] {
                     TimeoutFilter.class, FailOverFilter.class });
+            createCommand(CommandID.CAS, CasCommand.class, new Class[] {
+                TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.ROUTING_DUMP, RoutingdumpCommand.class,
                     new Class[] { TimeoutFilter.class });
             createCommand(CommandID.ROUTING_MKLHASH, RoutingmhtCommand.class,
