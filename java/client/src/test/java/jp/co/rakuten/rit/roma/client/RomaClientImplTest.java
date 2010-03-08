@@ -1,5 +1,6 @@
 package jp.co.rakuten.rit.roma.client;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -327,6 +328,144 @@ public class RomaClientImplTest extends TestCase {
             CLIENT.delete(KEY + "01");
             CLIENT.delete(KEY + "02");
             CLIENT.delete(KEY + "03");
+        }
+    }
+
+    public void testHashName() throws Exception {
+        KEY = KEY_PREFIX + "testHashName";
+        String hashName = "another.hash";
+        createHash(hashName);
+        RomaClient another = null;
+        try {
+            RomaClientFactory factory = RomaClientFactory.getInstance();
+            Properties prop = new Properties();
+            prop.put(Config.HASH_NAME, hashName);
+            another = factory.newRomaClient(prop);
+            another.open(Node.create(NODE_ID));
+            assertEquals(hashName, another.getHashName());
+
+            // put & get
+            assertTrue(CLIENT.put(KEY, "01".getBytes()));
+            assertTrue(another.put(KEY, "02".getBytes()));
+            assertEquals("01", new String(CLIENT.get(KEY)));
+            assertEquals("02", new String(another.get(KEY)));
+
+            // append & prepend
+            assertTrue(CLIENT.append(KEY, "02".getBytes()));
+            assertTrue(CLIENT.prepend(KEY, "03".getBytes()));
+            assertTrue(another.append(KEY, "04".getBytes()));
+            assertTrue(another.prepend(KEY, "05".getBytes()));
+            assertEquals("030102", new String(CLIENT.get(KEY)));
+            assertEquals("050204", new String(another.get(KEY)));
+
+            // add
+            assertTrue(CLIENT.add(KEY + "01", "01".getBytes()));
+            assertTrue(another.add(KEY + "01", "02".getBytes()));
+            assertEquals("01", new String(CLIENT.get(KEY + "01")));
+            assertEquals("02", new String(another.get(KEY + "01")));
+
+            // gets
+            List<String> keys = new ArrayList<String>();
+            keys.add(KEY);
+            keys.add(KEY + "01");
+            Map<String, byte[]> values1 = CLIENT.gets(keys);
+            Map<String, byte[]> values2 = another.gets(keys);
+            assertEquals(2, values1.size());
+            assertEquals(2, values2.size());
+            assertEquals("030102", new String(values1.get(KEY)));
+            assertEquals("050204", new String(values2.get(KEY)));
+            assertEquals("01", new String(values1.get(KEY + "01")));
+            assertEquals("02", new String(values2.get(KEY + "01")));
+
+            values1 = CLIENT.gets(keys, true);
+            values2 = another.gets(keys, true);
+            assertEquals(2, values1.size());
+            assertEquals(2, values2.size());
+            assertEquals("030102", new String(values1.get(KEY)));
+            assertEquals("050204", new String(values2.get(KEY)));
+            assertEquals("01", new String(values1.get(KEY + "01")));
+            assertEquals("02", new String(values2.get(KEY + "01")));
+
+            // gets & cas
+            Map<String, CasValue> values3 = CLIENT.getsWithCasID(keys);
+            Map<String, CasValue> values4 = another.getsWithCasID(keys);
+            assertEquals(2, values3.size());
+            assertEquals(2, values4.size());
+            assertEquals("030102", new String(values3.get(KEY).getValue()));
+            assertEquals("050204", new String(values4.get(KEY).getValue()));
+            assertEquals("01", new String(values3.get(KEY + "01").getValue()));
+            assertEquals("02", new String(values4.get(KEY + "01").getValue()));
+
+            values3 = CLIENT.getsWithCasID(keys, true);
+            values4 = another.getsWithCasID(keys, true);
+            assertEquals(2, values3.size());
+            assertEquals(2, values4.size());
+            assertEquals("030102", new String(values3.get(KEY).getValue()));
+            assertEquals("050204", new String(values4.get(KEY).getValue()));
+            assertEquals("01", new String(values3.get(KEY + "01").getValue()));
+            assertEquals("02", new String(values4.get(KEY + "01").getValue()));
+
+            assertEquals(CasResponse.OK, CLIENT.cas(KEY + "01", values3.get(KEY + "01").getCas(), "001".getBytes()));
+            assertEquals(CasResponse.OK, another.cas(KEY + "01", values4.get(KEY + "01").getCas(), "002".getBytes()));
+            assertEquals("001", new String(CLIENT.get(KEY + "01")));
+            assertEquals("002", new String(another.get(KEY + "01")));
+
+            // incr & decr
+            assertTrue(CLIENT.put(KEY + "02", "0".getBytes()));
+            assertTrue(another.put(KEY + "02", "0".getBytes()));
+            assertEquals(2, CLIENT.incr(KEY + "02", 2).intValue());
+            assertEquals(5, another.incr(KEY + "02", 5).intValue());
+            assertEquals(1, CLIENT.decr(KEY + "02", 1).intValue());
+            assertEquals(3, another.decr(KEY + "02", 2).intValue());
+
+            // delete
+            assertTrue(another.delete(KEY + "01"));
+            assertNull(another.get(KEY + "01"));
+            assertEquals("001", new String(CLIENT.get(KEY + "01")));
+
+        } finally {
+            CLIENT.delete(KEY + "01");
+            CLIENT.delete(KEY + "02");
+            if (another != null) {
+                another.close();
+            }
+            deleteHash(hashName);
+        }
+    }
+
+    private void createHash(String hashName) throws Exception {
+        Node node = Node.create(NODE_ID);
+        Socket sock = new Socket(node.getHost(), node.getPort());
+        Connection conn = new Connection(sock);
+        try {
+            StringBuilder sb =  new StringBuilder();
+            sb.append("createhash ").append(hashName).append("\r\n");
+            conn.out.write(sb.toString().getBytes());
+            conn.out.flush();
+            String response = conn.in.readLine();
+            if (response.indexOf("\"" + NODE_ID +"\"=>\"CREATED\"") == -1) {
+                throw new ClientException(response);
+            }
+        } finally {
+            conn.close();
+        }
+    }
+
+    private void deleteHash(String hashName) throws Exception {
+        Node node = Node.create(NODE_ID);
+        Socket sock = new Socket(node.getHost(), node.getPort());
+        Connection conn = new Connection(sock);
+        try {
+            StringBuilder sb =  new StringBuilder();
+            sb.append("deletehash ").append(hashName).append("\r\n");
+            conn.out.write(sb.toString().getBytes());
+            conn.out.flush();
+            String response = conn.in.readLine();
+            if (response.indexOf("\"" + NODE_ID +"\"=>\"DELETED\"") == -1) {
+                throw new ClientException(response);
+            }
+        } finally {
+            conn.close();
         }
     }
 }

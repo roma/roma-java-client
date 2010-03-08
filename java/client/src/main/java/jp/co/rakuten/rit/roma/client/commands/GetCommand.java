@@ -20,6 +20,8 @@ public class GetCommand extends DefaultCommand implements CommandID {
             StringBuilder sb = new StringBuilder();
             sb.append(STR_GET).append(STR_WHITE_SPACE)
                     .append(context.get(CommandContext.KEY))
+                    .append(STR_ESC)
+                    .append(context.get(CommandContext.HASH_NAME))
                     .append(STR_CRLF);
 
             Connection conn = (Connection) context.get(CommandContext.CONNECTION);

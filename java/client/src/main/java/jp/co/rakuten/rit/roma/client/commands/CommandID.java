@@ -36,6 +36,8 @@ public interface CommandID {
 
     String STR_WHITE_SPACE = " ";
 
+    String STR_ESC = new String(new byte[] {0x1b});
+
     String STR_GET = "get";
     
     String STR_GETS = "gets";

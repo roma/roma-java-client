@@ -49,6 +49,10 @@ public interface RomaClient {
 
     long getRetrySleepTime();
 
+    void setHashName(String hashName);
+
+    String getHashName();
+
     boolean isOpen();
 
     List<Object> routingdump(Node node) throws ClientException;

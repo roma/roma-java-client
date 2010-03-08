@@ -16,7 +16,8 @@ public class DeleteCommand extends DefaultCommand implements CommandID {
         // delete <key> [<time>] [noreply]\r\n
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append(STR_DELETE).append(STR_WHITE_SPACE).append(
-                context.get(CommandContext.KEY)).append(STR_CRLF);
+                context.get(CommandContext.KEY)).append(STR_ESC).append(
+                context.get(CommandContext.HASH_NAME)).append(STR_CRLF);
         context.put(CommandContext.STRING_DATA, sb);
     }
 

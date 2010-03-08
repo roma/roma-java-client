@@ -13,6 +13,7 @@ public class CommandContext extends HashMap<String, Object> {
     public static final String CONNECTION = "CONNECTION";
     public static final String KEY = "KEY";
     public static final String KEYS = "KEYS";
+    public static final String HASH_NAME = "HASH_NAME";
     public static final String HASH = "HASH";
     public static final String VALUE = "VALUE";
     public static final String EXPIRY = "EXPIRY";

@@ -26,4 +26,8 @@ public final class Config {
     public static final String RETRY_SLEEP_TIME = "retry.timeout";
 
     public static final String DEFAULT_RETRY_SLEEP_TIME = "100";
+
+    public static final String HASH_NAME = "hash_name";
+
+    public static final String DEFAULT_HASH_NAME = "roma";
 }

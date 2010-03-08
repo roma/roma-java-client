@@ -252,6 +252,7 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.CONNECTION_POOL, connPool);
             context.put(CommandContext.ROUTING_TABLE, routingTable);
             context.put(CommandContext.KEY, key);
+            context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.VALUE, value);
             context.put(CommandContext.EXPIRY, expiry);
             context.put(CommandContext.COMMAND_ID, commandID);
@@ -313,6 +314,7 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.ROUTING_TABLE, routingTable);
             context.put(CommandContext.KEY, keys.get(0));
             context.put(CommandContext.KEYS, keys);
+            context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.COMMAND_ID, commandID);
             Command command = commandGenerator.getCommand(commandID);
             boolean ret = exec(command, context);
@@ -339,6 +341,7 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.CONNECTION_POOL, connPool);
             context.put(CommandContext.ROUTING_TABLE, routingTable);
             context.put(CommandContext.KEY, key);
+            context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.COMMAND_ID, commandID);
             Command command = commandGenerator.getCommand(commandID);
             return exec(command, context);
@@ -368,6 +371,7 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.CONNECTION_POOL, connPool);
             context.put(CommandContext.ROUTING_TABLE, routingTable);
             context.put(CommandContext.KEY, key);
+            context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.VALUE, new Integer(count));
             context.put(CommandContext.COMMAND_ID, commandID);
             Command command = commandGenerator.getCommand(commandID);
@@ -410,6 +414,7 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.CONNECTION_POOL, connPool);
             context.put(CommandContext.ROUTING_TABLE, routingTable);
             context.put(CommandContext.KEY, key);
+            context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.CAS_ID, casID);
             context.put(CommandContext.VALUE, value);
             context.put(CommandContext.EXPIRY, expiry);

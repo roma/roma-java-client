@@ -22,7 +22,8 @@ public class GetsCommand extends DefaultCommand implements CommandID {
 
             sb.append(STR_GETS);
             for (Iterator<String> iter = keys.iterator(); iter.hasNext(); ) {
-            	sb.append(STR_WHITE_SPACE).append(iter.next());
+            	sb.append(STR_WHITE_SPACE).append(iter.next()).append(
+                        STR_ESC).append(context.get(CommandContext.HASH_NAME));
             }
             sb.append(STR_CRLF);
 

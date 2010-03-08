@@ -135,6 +135,11 @@ public class RomaClientFactory {
         }
         client.setCommandGenerator(commandGen);
 
+        // hash name
+        String hashName = props.getProperty(Config.HASH_NAME,
+                Config.DEFAULT_HASH_NAME);
+        client.setHashName(hashName);
+
         return (RomaClient) client;
     }
 }

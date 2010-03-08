@@ -19,6 +19,8 @@ public class StoreCommand extends DefaultCommand {
         sb.append(getCommand())
                 .append(STR_WHITE_SPACE)
                 .append(context.get(CommandContext.KEY))
+                .append(STR_ESC)
+                .append(context.get(CommandContext.HASH_NAME))
                 .append(STR_WHITE_SPACE)
                 .append(context.get(CommandContext.HASH))
                 .append(STR_WHITE_SPACE).append(

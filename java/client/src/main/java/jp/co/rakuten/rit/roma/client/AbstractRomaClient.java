@@ -13,6 +13,7 @@ public abstract class AbstractRomaClient implements RomaClient {
     protected ConnectionPool connPool;
     protected RoutingTable routingTable;
     protected CommandGenerator commandGenerator;
+    protected String hashName;
 
     public final void setConnectionPool(ConnectionPool pool) {
         this.connPool = pool;
@@ -68,5 +69,13 @@ public abstract class AbstractRomaClient implements RomaClient {
 
     public long getRetrySleepTime() {
         return FailOverFilter.sleepPeriod;
+    }
+
+    public void setHashName(String hashName) {
+        this.hashName = hashName;
+    }
+
+    public String getHashName() {
+        return hashName;
     }
 }
