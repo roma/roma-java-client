@@ -42,7 +42,11 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
     public synchronized void put(Node node, Connection conn) throws IOException {
         SocketPool spool = pool.get(node);
         try {
-            spool.put(conn.sock);
+	    if (spool == null) {
+		spool = new SocketPool(node.host, node.port, size);
+		pool.put(node, spool);
+	    }
+	    spool.put(conn.sock);
         } catch (Exception e) {
             throw new IOException(e.getMessage());
         }
