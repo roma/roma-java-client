@@ -58,8 +58,8 @@ public class TimeoutFilter extends AbstractCommandFilter {
             Connection conn = null;
             try {
                 node = (Node) context.get(CommandContext.NODE);
-                if (commandID != CommandID.ROUTING_DUMP
-                        && commandID != CommandID.ROUTING_MKLHASH) {
+                if (commandID != CommandID.ROUTING_DUMP &&
+		    commandID != CommandID.ROUTING_MKLHASH) { // general commands
                     connPool = (ConnectionPool) context
                             .get(CommandContext.CONNECTION_POOL);
                     conn = connPool.get(node);
@@ -71,19 +71,18 @@ public class TimeoutFilter extends AbstractCommandFilter {
                 }
                 return command.execute(context);
             } finally {
-                try {
-                    if (conn != null) {
-                        if (commandID != CommandID.ROUTING_DUMP
-                                && commandID != CommandID.ROUTING_MKLHASH) {
-                            connPool.put(node, conn);
-                            context.remove(CommandContext.CONNECTION);
-                        } else {
-                            conn.close();
-                        }
-                        conn = null;
-                    }
-                } catch (IOException e) { // ignore
-                }
+		conn = (Connection) context.get(CommandContext.CONNECTION);
+		if (conn != null) {
+		    try {
+			if (commandID != CommandID.ROUTING_DUMP &&
+			    commandID != CommandID.ROUTING_MKLHASH) { // general commands
+			    connPool.put(node, conn);
+			} else { // routingdump, routingmkh
+			    conn.close();
+			}
+		    } catch (IOException e) { // ignore
+		    }
+		}
             }
         }
     }
@@ -113,30 +112,28 @@ public class TimeoutFilter extends AbstractCommandFilter {
             t = e;
         } catch (ExecutionException e) {
             t = e.getCause();
-        } catch (InterruptedException e) {
-        } // ignore
+        } catch (InterruptedException e) { // ignore
+        }
 
         // error handling
         if (t != null) {
             if (t instanceof java.util.concurrent.TimeoutException) {
-                ConnectionPool connPool = (ConnectionPool) context
-                        .get(CommandContext.CONNECTION_POOL);
-                Connection conn = (Connection) context
-                        .get(CommandContext.CONNECTION);
+                ConnectionPool connPool = (ConnectionPool)
+		    context.get(CommandContext.CONNECTION_POOL);
+                Connection conn = (Connection)
+		    context.get(CommandContext.CONNECTION);
                 future.cancel(true);
                 if (conn != null) {
-                    if (commandID != CommandID.ROUTING_DUMP
-                            && commandID != CommandID.ROUTING_MKLHASH) {
-                        Node node = (Node) context.get(CommandContext.NODE);
-                        connPool.delete(node);
-                        context.remove(CommandContext.CONNECTION);
-                    } else {
-                        try {
+		    try {
+			if (commandID != CommandID.ROUTING_DUMP &&
+			    commandID != CommandID.ROUTING_MKLHASH) { // general commands
+			    Node node = (Node) context.get(CommandContext.NODE);
+			    connPool.delete(node, conn);
+			} else { // routingdump, routingmkh
                             conn.close();
-                        } catch (IOException e) { // ignore
-                        }
-                    }
-                    conn = null;
+			}
+                    } catch (IOException e) { // ignore
+		    }
                 }
                 throw new CommandException(new TimeoutException(t));
             } else { // otherwise

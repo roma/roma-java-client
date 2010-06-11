@@ -40,7 +40,8 @@ public class FailOverFilter extends AbstractCommandFilter {
             throw new CommandException(new BadRoutingTableFormatException(
                     "hash is null."));
         }
-        ConnectionPool connPool = (ConnectionPool) context.get(CommandContext.CONNECTION_POOL);
+        ConnectionPool connPool = (ConnectionPool)
+	    context.get(CommandContext.CONNECTION_POOL);
         int retryCount = 0;
         while (true) {
             Throwable t = null;
@@ -56,32 +57,18 @@ public class FailOverFilter extends AbstractCommandFilter {
 
             // re-try message-passing or handle an error
             if (t != null) {
-                int commandID = (Integer) context.get(CommandContext.COMMAND_ID);
                 try {
                     Node node = (Node) context.get(CommandContext.NODE);
+		    Connection conn = (Connection)
+			context.get(CommandContext.CONNECTION);
                     if (t instanceof IOException || t instanceof TimeoutException) {
                         routingTable.incrFailCount(node);
-                        connPool.delete(node);
                     } else if (t instanceof ClientException) {
                         if (t.getCause() instanceof IOException) {
                             routingTable.incrFailCount(node);
-                            connPool.delete(node);
-                        } else {
-                            Connection conn = (Connection) context.get(CommandContext.CONNECTION);
-                            try {
-                                if (conn != null) {
-                                    if (commandID != CommandID.ROUTING_DUMP && commandID != CommandID.ROUTING_MKLHASH) {
-                                        connPool.put(node, conn);
-                                        context.remove(CommandContext.CONNECTION);
-                                    } else {
-                                        conn.close();
-                                    }
-                                    conn = null;
-                                }
-                            } catch (IOException e) {
-                            } // ignore
                         }
                     }
+		    connPool.delete(node, conn);
                     Thread.sleep(sleepPeriod);
                 } catch (InterruptedException e) { // ignore
                 }

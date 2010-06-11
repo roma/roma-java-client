@@ -39,8 +39,12 @@ public class HashMapConnectionPoolImpl implements ConnectionPool {
 	}
     }
 
-    public synchronized void delete(Node node) {
-	pool.remove(node);
+    public synchronized void delete(Node node, Connection conn) {
+	//pool.remove(node);
+    }
+
+    public synchronized void deleteAll(Node node) {
+	//
     }
 
     public synchronized void closeAll() {

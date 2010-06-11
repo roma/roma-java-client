@@ -40,11 +40,15 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
     }
 
     public synchronized void put(Node node, Connection conn) throws IOException {
+	if (node == null || conn == null) {
+	    return;
+	}
+
         SocketPool spool = pool.get(node);
         try {
 	    if (spool == null) {
-		spool = new SocketPool(node.host, node.port, size);
-		pool.put(node, spool);
+		conn.close();
+		return;
 	    }
 	    spool.put(conn.sock);
         } catch (Exception e) {
@@ -52,15 +56,28 @@ public class JakartaConnectionPoolImpl implements ConnectionPool {
         }
     }
 
-    public synchronized void delete(Node node) {
+    public synchronized void deleteAll(Node node) {
         SocketPool spool = pool.remove(node);
         try {
             if (spool != null) {
                 spool.close();
             }
         } catch (IOException e) { // ignore
-            // throw new IOException(e.getMessage());
         }
+    }
+
+    public synchronized void delete(Node node, Connection conn) {
+	SocketPool spool = pool.get(node);
+	try {
+	    if (conn != null) {
+		if (spool != null) {
+		    spool.remove(conn.sock);
+		} else {
+		    conn.close();
+		}
+	    }
+	} catch (Exception e) { // ignore
+	}
     }
 
     public synchronized void closeAll() {

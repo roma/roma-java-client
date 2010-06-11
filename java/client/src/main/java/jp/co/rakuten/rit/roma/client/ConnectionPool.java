@@ -11,8 +11,9 @@ public interface ConnectionPool {
 
     public void put(Node node, Connection conn) throws IOException;
 
-    public void delete(Node node);
+    public void delete(Node node, Connection conn);
+
+    public void deleteAll(Node node);
 
     public void closeAll();
-
 }

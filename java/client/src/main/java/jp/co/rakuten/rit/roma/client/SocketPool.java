@@ -52,6 +52,10 @@ public class SocketPool implements Closeable {
         pool.returnObject(socket);
     }
 
+    public void remove(Socket socket) throws Exception {
+	pool.invalidateObject(socket);
+    }
+
     public void close() throws IOException {
         try {
             pool.clear();
