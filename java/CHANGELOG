@@ -1,0 +1,18 @@
+* 0.3.8 (Jun 11 2010)
+
+* refactor the programs for failover [muga nishizawa] 592b1f3
+
+* 0.3.7 (Jun 9 2010)
+
+* fixed a bug for socket connection leak [muga nishizawa] 798e967
+* ハッシュ名への対応 [kikumoto] bfc7c98
+* cas command をサポート [kikumoto] c354ea8
+* cas command をサポート [kikumoto] 0586d91
+* add command をサポート [kikumoto] 813fac6
+* for jdk1.5 [Muga Nishizawa] 7e1c023
+* add a jar file [Muga Nishizawa] b59bf00
+* edit pom.xml [Muga Nishizawa] 52faf8b
+* improve the implementation of gets command [muga.nishizawa] bfc8bc1
+* add the test program for performance of list commands [U-ALICE\muga] 4d60908
+* add the program for the gets command [muga.nishizawa] f6e3c0b
+* extract common routine. [Kouhei Sutou] f0c1fc4
