@@ -9,6 +9,7 @@ import jp.co.rakuten.rit.roma.client.command.Command;
 import jp.co.rakuten.rit.roma.client.command.CommandContext;
 import jp.co.rakuten.rit.roma.client.command.CommandException;
 import jp.co.rakuten.rit.roma.client.command.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.CommandID;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 /**
@@ -91,6 +92,15 @@ public interface RomaClient {
      * @see #open(java.lang.String)
      */
     void close() throws ClientException;
+
+    /**
+     * Set the expiry date of a stored data 
+     * @param key
+     * @param expiry
+     * @return
+     * @throws ClientException
+     */
+    public boolean expire(String key, long expiry) throws ClientException;
 
     /**
      * Store the value in ROMA.

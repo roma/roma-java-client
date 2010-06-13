@@ -207,8 +207,8 @@ public class RomaClientImplTest extends TestCase {
 
 	public void testPut03() throws Exception {
 		KEY = KEY_PREFIX + "testPut03";
-		Date one = new Date(2000);
-		assertTrue(CLIENT.put(KEY, "01".getBytes(), one));
+		Date two = new Date(2000);
+		assertTrue(CLIENT.put(KEY, "01".getBytes(), two));
 		byte[] ret = CLIENT.get(KEY);
 		assertEquals("01", new String(ret));
 		Thread.sleep(3000);
@@ -303,6 +303,44 @@ public class RomaClientImplTest extends TestCase {
         } finally {
             CLIENT.delete(KEY + "01");
         }
+    }
+
+    public void testExpire01() throws Exception {
+    	try {
+            KEY = KEY_PREFIX + "testExpire01";
+            assertTrue(CLIENT.put(KEY, "01".getBytes()));
+            byte[] value = CLIENT.get(KEY);
+            assertEquals("01", new String(value));
+            long d = (System.currentTimeMillis() / 1000L) + 2;
+            CLIENT.expire(KEY, d);
+            value = CLIENT.get(KEY);
+            assertEquals("01", new String(value));
+            Thread.sleep(3000);
+            value = CLIENT.get(KEY);
+            assertEquals(null, value);
+    	} finally {
+            CLIENT.delete(KEY);
+    	}
+    }
+
+    public void testExpire02() throws Exception {
+    	try {
+            KEY = KEY_PREFIX + "testExpire02";
+            Date two = new Date(2000);
+            assertTrue(CLIENT.put(KEY, "01".getBytes(), two));
+            byte[] value = CLIENT.get(KEY);
+            assertEquals("01", new String(value));
+            long d = (System.currentTimeMillis() / 1000L) + 4;
+            CLIENT.expire(KEY, d);
+            Thread.sleep(3000);
+            value = CLIENT.get(KEY);
+            assertEquals("01", new String(value));
+            Thread.sleep(2000);
+            value = CLIENT.get(KEY);
+            assertEquals(null, value);
+    	} finally {
+            CLIENT.delete(KEY);
+    	}
     }
 
     public void testGetsAndCas01() throws Exception {
