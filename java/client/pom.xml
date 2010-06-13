@@ -20,18 +20,12 @@
 			<groupId>net.arnx</groupId>
 			<artifactId>jsonic</artifactId>
 			<version>1.1.0</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
 			<version>1.5.1</version>
 		</dependency>
-		<!--   <dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-jcache</artifactId>
-			<version>1.1</version>
-			</dependency>  -->
 	</dependencies>
 	<organization>
 	</organization>

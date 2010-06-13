@@ -36,22 +36,6 @@ public class TimeoutFilterTest extends TestCase {
 	}
     }
 
-    public static class MockConnectionPool implements ConnectionPool {
-
-	public Connection get(Node node) throws IOException {
-	    return null;
-	}
-
-	public void put(Node node, Connection conn) throws IOException {
-	}
-
-	public void closeAll() {
-	}
-
-	public void delete(Node node) {
-	}
-    }
-
     public void testAroundExecute01() throws Exception {
 	TimeoutFilter.timeout = 100;
 	TimeoutFilterTest.PERIOD_OF_SLEEP = 1;

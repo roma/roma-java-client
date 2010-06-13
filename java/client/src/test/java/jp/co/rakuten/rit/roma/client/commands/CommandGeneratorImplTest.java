@@ -43,29 +43,4 @@ public class CommandGeneratorImplTest extends TestCase {
 	    return false;
 	}
     }
-
-    public static class MockConnectionPool implements ConnectionPool {
-
-	public Connection get(Node node) throws IOException {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
-
-	public void put(Node node, Connection conn) throws IOException {
-	    // TODO Auto-generated method stub
-
-	}
-
-	public void closeAll() {
-	    // TODO Auto-generated method stub
-
-	}
-
-	public void delete(Node node) {
-	    // TODO Auto-generated method stub
-
-	}
-
-    }
-
 }
