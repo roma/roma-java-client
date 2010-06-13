@@ -200,6 +200,10 @@ public class RomaClientImpl extends AbstractRomaClient {
         return ret;
     }
 
+    public boolean expire(String key, long expiry) throws ClientException {
+    	return update0(CommandID.EXPIRE, key, new byte[0], expiry);
+    }
+
     /**
      * @see RomaClient#put(String, byte[])
      */
@@ -255,6 +259,24 @@ public class RomaClientImpl extends AbstractRomaClient {
             context.put(CommandContext.HASH_NAME, hashName);
             context.put(CommandContext.VALUE, value);
             context.put(CommandContext.EXPIRY, expiry);
+            context.put(CommandContext.COMMAND_ID, commandID);
+            Command command = commandGenerator.getCommand(commandID);
+            return exec(command, context);
+        } catch (CommandException e) {
+            throw toClientException(e);
+        }
+    }
+
+    protected boolean update0(final int commandID, final String key, final byte[] value, final long expiry)
+    		throws ClientException {
+        CommandContext context = new CommandContext();
+        try {
+            context.put(CommandContext.CONNECTION_POOL, connPool);
+            context.put(CommandContext.ROUTING_TABLE, routingTable);
+            context.put(CommandContext.KEY, key);
+            context.put(CommandContext.HASH_NAME, hashName);
+            context.put(CommandContext.VALUE, value);
+            context.put(CommandContext.EXPIRY, "" + expiry);
             context.put(CommandContext.COMMAND_ID, commandID);
             Command command = commandGenerator.getCommand(commandID);
             return exec(command, context);

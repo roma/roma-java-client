@@ -48,6 +48,8 @@ public class CommandGeneratorImpl implements CommandGenerator {
                     TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.CAS, CasCommand.class, new Class[] {
                 TimeoutFilter.class, FailOverFilter.class });
+            createCommand(CommandID.EXPIRE, ExpireCommand.class, new Class[] {
+                TimeoutFilter.class, FailOverFilter.class });
             createCommand(CommandID.ROUTING_DUMP, RoutingdumpCommand.class,
                     new Class[] { TimeoutFilter.class });
             createCommand(CommandID.ROUTING_MKLHASH, RoutingmhtCommand.class,

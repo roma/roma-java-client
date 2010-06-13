@@ -32,6 +32,8 @@ public interface CommandID {
 
     int CAS = 62;
 
+    int EXPIRE = 63;
+
     String STR_CRLF = "\r\n";
 
     String STR_WHITE_SPACE = " ";
@@ -57,6 +59,8 @@ public interface CommandID {
     String STR_DECREMENT = "decr";
     
     String STR_CAS = "cas";
+
+    String STR_EXPIRE = "set_expt";
 
     // routing table command
     int ROUTING_DUMP = 80;
