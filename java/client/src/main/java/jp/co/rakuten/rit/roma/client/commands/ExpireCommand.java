@@ -16,7 +16,6 @@ public class ExpireCommand extends StoreCommand {
                 .append(context.get(CommandContext.EXPIRY))
                 .append(STR_CRLF);
         context.put(CommandContext.STRING_DATA, sb);
-        System.out.println("set_expt log: " + sb.toString()); // TODO
     }
 
     protected String getCommand() throws BadCommandException {
