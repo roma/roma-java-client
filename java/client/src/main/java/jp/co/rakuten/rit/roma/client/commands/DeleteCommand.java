@@ -43,12 +43,11 @@ public class DeleteCommand extends DefaultCommand implements CommandID {
             return true;
         } else if (s.startsWith("NOT_FOUND")) {
             return false;
-        } else if (s.startsWith("SERVER_ERROR")) {
-            throw new ClientException(s);
-        } else if (s.startsWith("CLIENT_ERROR")) {
+        } else if (s.startsWith("SERVER_ERROR") 
+        	|| s.startsWith("CLIENT_ERROR")
+        	|| s.startsWith("ERROR")) {
             throw new ClientException(s);
         } else {
-            //throw new UnsupportedOperationException();
             throw new ClientException("not support yet");
         }
     }

@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
 import jp.co.rakuten.rit.roma.client.command.CommandContext;
+import jp.co.rakuten.rit.roma.client.command.CommandException;
 
 /**
  * 
@@ -48,11 +49,10 @@ public class IncrAndDecrCommand extends DefaultCommand {
         String ret = sb.toString();
         if (ret.startsWith("NOT_FOUND")) {
             return false;
-            //throw new ClientException(
-	    /*
-            throw new UnsupportedOperationException(
-            "Not supported yet: NOT_FOUND");
-             */
+        } else if (ret.startsWith("SERVER_ERROR")
+        	|| ret.startsWith("CLIENT_ERROR")
+        	|| ret.startsWith("ERROR")) {
+            throw new CommandException(ret);
         } else { // big integer
             context.put(CommandContext.RESULT, new BigInteger(ret));
             return true;

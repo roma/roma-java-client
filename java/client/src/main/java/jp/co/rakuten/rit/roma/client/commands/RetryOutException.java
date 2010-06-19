@@ -11,6 +11,10 @@ public class RetryOutException extends CommandException {
         super("Retry out");
     }
 
+    public RetryOutException(String reason) {
+	super(reason);
+    }
+
     public RetryOutException(Throwable t) {
         super(t);
     }

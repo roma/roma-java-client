@@ -56,9 +56,9 @@ public class StoreCommand extends DefaultCommand {
             return true;
         } else if (ret.startsWith("NOT_STORED")) {
             return false;
-        } else if (ret.startsWith("SERVER_ERROR")) {
-            throw new ClientException(ret);
-        } else if (ret.startsWith("CLIENT_ERROR")) {
+        } else if (ret.startsWith("SERVER_ERROR")
+        	|| ret.startsWith("CLIENT_ERROR")
+        	|| ret.startsWith("ERROR")) {
             throw new ClientException(ret);
         }
         return false;

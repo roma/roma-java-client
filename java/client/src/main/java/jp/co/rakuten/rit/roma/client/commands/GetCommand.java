@@ -35,16 +35,12 @@ public class GetCommand extends DefaultCommand implements CommandID {
                 ;
             } else if (s.startsWith("END")) {
                 return false;
-            } else if (s.startsWith("ERROR")) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-                throw new CommandException("Not supported yet.");
-            } else if (s.startsWith("SERVER_ERROR")) {
-                throw new CommandException(s);
-            } else if (s.startsWith("CLIENT_ERROR")) {
+            } else if (s.startsWith("SERVER_ERROR")
+        	    || s.startsWith("CLIENT_ERROR")
+        	    || s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else {
-                //throw new UnsupportedOperationException("Not supported yet.");
-                throw new CommandException("Not supported yet.");
+                throw new CommandException("Not supported yet. s: " + s);
             }
 
             StringTokenizer t = new StringTokenizer(s);

@@ -57,9 +57,9 @@ public class CasCommand extends DefaultCommand {
         } else if (ret.startsWith("NOT_FOUND")) {
             context.put(CommandContext.RESULT, CasResponse.NOT_FOUND);
             return true;
-        } else if (ret.startsWith("SERVER_ERROR")) {
-            throw new ClientException(ret);
-        } else if (ret.startsWith("CLIENT_ERROR")) {
+        } else if (ret.startsWith("SERVER_ERROR")
+        	|| ret.startsWith("CLENT_ERROR")
+        	|| ret.startsWith("ERROR")) {
             throw new ClientException(ret);
         }
         return false;

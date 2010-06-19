@@ -2,6 +2,8 @@ package jp.co.rakuten.rit.roma.client.commands;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import jp.co.rakuten.rit.roma.client.BadRoutingTableFormatException;
 import jp.co.rakuten.rit.roma.client.ClientException;
@@ -43,6 +45,8 @@ public class FailOverFilter extends AbstractCommandFilter {
         ConnectionPool connPool = (ConnectionPool)
 	    context.get(CommandContext.CONNECTION_POOL);
         int retryCount = 0;
+        List<String> errorList = new ArrayList<String>();
+        String errorMessage = null;
         while (true) {
             Throwable t = null;
             try {
@@ -52,7 +56,12 @@ public class FailOverFilter extends AbstractCommandFilter {
                 return command.execute(context);
             } catch (CommandException e) {
                 t = e.getCause();
-                //System.out.println(t);
+                if (t != null) {
+                    errorMessage = e.getMessage() + ":" + t.toString() + ":" + t.getMessage();
+                } else {
+                    errorMessage = e.getMessage() + "null";
+                }
+                errorList.add(errorMessage);
             }
 
             // re-try message-passing or handle an error
@@ -75,7 +84,10 @@ public class FailOverFilter extends AbstractCommandFilter {
                 if (retryCount < retryThreshold) {
                     retryCount++;
                 } else {
-                    throw new CommandException(new RetryOutException());
+                    CommandException e = new CommandException(new RetryOutException(errorList.toString()));
+                    errorList.clear();
+                    errorMessage = null;
+                    throw e;
                 }
             }
         }
