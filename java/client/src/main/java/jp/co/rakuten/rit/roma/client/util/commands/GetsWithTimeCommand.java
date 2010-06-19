@@ -56,11 +56,12 @@ public class GetsWithTimeCommand extends DefaultCommand {
             } else if (s.startsWith("END")) {
                 // return null;
                 return false;
-            } else if (s.startsWith("SERVER_ERROR")) {
+            } else if (s.startsWith("SERVER_ERROR")
+        	    || s.startsWith("CLIENT_ERROR")
+        	    || s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else {
                 throw new CommandException("Not supported yet.");
-                //throw new UnsupportedOperationException("Not supported yet.");
             }
             conn.in.readLine(); // "length\r\n"
 

@@ -38,7 +38,9 @@ public class ClearCommand extends DefaultCommand {
             } else if (s.startsWith("NOT_FOUND")) {
                 return false;
                 // throw new ClientException("Not found");
-            } else if (s.startsWith("SERVER_ERROR")) {
+            } else if (s.startsWith("SERVER_ERROR")
+        	    || s.startsWith("CLIENT_ERROR")
+        	    || s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else {
                 //throw new UnsupportedOperationException(s);

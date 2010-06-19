@@ -36,10 +36,11 @@ public class SwapAndSizedPushCommand extends UpdateCommand {
             return false;
         } else if (s.startsWith("NOT_PUSHED")) {
             return false;
-        } else if (s.startsWith("SERVER_ERROR")) {
+        } else if (s.startsWith("SERVER_ERROR")
+        	|| s.startsWith("CLIENT_ERROR")
+        	|| s.startsWith("ERROR")) {
             throw new ClientException(s);
         } else {
-            //throw new UnsupportedOperationException();
             return false;
         }
     }

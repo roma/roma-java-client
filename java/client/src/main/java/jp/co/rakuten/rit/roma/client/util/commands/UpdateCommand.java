@@ -49,10 +49,11 @@ public class UpdateCommand extends DefaultCommand {
             return true;
         } else if (s.startsWith("NOT_STORED")) {
             return false;
-        } else if (s.startsWith("SERVER_ERROR")) {
+        } else if (s.startsWith("SERVER_ERROR")
+        	|| s.startsWith("CLIENT_ERROR")
+        	|| s.startsWith("ERROR")) {
             throw new ClientException(s);
         } else {
-            // throw new UnsupportedOperationException();
             return false;
         }
     }

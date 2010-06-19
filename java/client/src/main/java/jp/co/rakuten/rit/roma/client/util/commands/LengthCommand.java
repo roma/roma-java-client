@@ -31,8 +31,9 @@ public class LengthCommand extends DefaultCommand {
 
             String s = conn.in.readLine();
             // length | NOT_FOUND | SERVER_ERROR
-            if (s.startsWith("SERVER_ERROR")) {
-                // return -1;
+            if (s.startsWith("SERVER_ERROR") ||
+        	    s.startsWith("CLIENT_ERROR") ||
+        	    s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else if (s.startsWith("NOT_FOUND")) {
                 context.put(CommandContext.RESULT, new Integer(-1));

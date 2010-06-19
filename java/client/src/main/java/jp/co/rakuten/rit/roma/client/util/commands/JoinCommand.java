@@ -54,11 +54,12 @@ public class JoinCommand extends DefaultCommand {
             } else if (s.startsWith("END")) {
                 // return null;
                 return false;
-            } else if (s.startsWith("SERVER_ERROR")) {
+            } else if (s.startsWith("SERVER_ERROR")
+        	    || s.startsWith("CLIENT_ERROR")
+        	    || s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else {
                 throw new CommandException("Not supported yet.");
-                //throw new UnsupportedOperationException("Not supported yet.");
             }
 
             // int size = Integer.parseInt(conn.in.readLine()); // <size>\r\n

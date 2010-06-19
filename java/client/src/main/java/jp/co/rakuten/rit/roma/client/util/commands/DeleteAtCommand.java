@@ -38,12 +38,12 @@ public class DeleteAtCommand extends DefaultCommand {
             } else if (s.startsWith("NOT_DELETED")) {
                 return false;
             } else if (s.startsWith("NOT_FOUND")) {
-                // throw new ClientException("Not found");
                 return false;
-            } else if (s.startsWith("SERVER_ERROR")) {
+            } else if (s.startsWith("SERVER_ERROR")
+        	    || s.startsWith("CLIENT_ERROR")
+        	    || s.startsWith("ERROR")) {
                 throw new CommandException(s);
             } else {
-                //throw new UnsupportedOperationException();
                 return false;
             }
         } catch (IOException e) {
