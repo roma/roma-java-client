@@ -1,3 +1,10 @@
+
+* 0.3.9 (Jun 17 2010)
+
+* add a code for handling an "ERROR" message to several command programs [Muga Nishizawa] 355c0d9
+* add the program for command "set_expt", which is for modifing the expiry date of stored data [Muga Nishizawa] 6db7e49
+* add a class representing mock connection pool [Muga Nishizawa] b5ffcde
+
 * 0.3.8 (Jun 11 2010)
 
 * refactor the programs for failover [muga nishizawa] 592b1f3
