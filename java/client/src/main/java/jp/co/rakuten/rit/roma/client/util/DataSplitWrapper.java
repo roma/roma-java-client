@@ -87,14 +87,11 @@ public class DataSplitWrapper {
 			// number of segments
 			dout.writeInt(num);
 
-			// size of each key
-			for (String k : keys) {
-				dout.writeInt(k.length());
-			}
-
 			// each key
 			for (String k : keys) {
-				dout.write(k.getBytes("UTF-8"));
+				byte[] keyBytes = k.getBytes("UTF-8");
+				dout.writeInt(keyBytes.length);
+				dout.write(keyBytes);
 			}
 
 			// size of each segment
@@ -141,15 +138,10 @@ public class DataSplitWrapper {
 			int num = din.readInt();
 
 			// size of each key
-			int[] keyLens = new int[num];
-			for (int i = 0; i < num; ++i) {
-				keyLens[i] = din.readInt();
-			}
-
-			// each key
 			String[] keys = new String[num];
 			for (int i = 0; i < num; ++i) {
-				byte[] k = new byte[keyLens[i]];
+				int l = din.readInt();
+				byte[] k = new byte[l];
 				din.read(k);
 				keys[i] = new String(k, "UTF-8");
 			}
@@ -206,16 +198,11 @@ public class DataSplitWrapper {
 			// number of segments
 			int num = din.readInt();
 
-			// size of each key
-			int[] keyLens = new int[num];
-			for (int i = 0; i < num; ++i) {
-				keyLens[i] = din.readInt();
-			}
-
 			// each key
 			String[] keys = new String[num];
 			for (int i = 0; i < num; ++i) {
-				byte[] k = new byte[keyLens[i]];
+				int l = din.readInt();
+				byte[] k = new byte[l];
 				din.read(k);
 				keys[i] = new String(k, "UTF-8");
 			}
