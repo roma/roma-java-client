@@ -9,7 +9,6 @@ import jp.co.rakuten.rit.roma.client.command.Command;
 import jp.co.rakuten.rit.roma.client.command.CommandContext;
 import jp.co.rakuten.rit.roma.client.command.CommandException;
 import jp.co.rakuten.rit.roma.client.command.CommandGenerator;
-import jp.co.rakuten.rit.roma.client.commands.CommandID;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 /**
@@ -125,7 +124,22 @@ public interface RomaClient {
      * @return true, if the value was successfully stored
      * @throws ClientException
      */
+    @Deprecated
     boolean put(String key, byte[] value, Date expiry) throws ClientException;
+
+    /**
+     * Store the value in ROMA.
+     * 
+     * @param key
+     *            key to store value
+     * @param value
+     *            value to store
+     * @param expiry
+     *            expire time
+     * @return true, if the value was successfully stored
+     * @throws ClientException
+     */
+    boolean put(String key, byte[] value, long expiry) throws ClientException;
 
     /**
      * Get a value with a key.
@@ -166,9 +180,23 @@ public interface RomaClient {
      * @return
      * @throws ClientException
      */
+    @Deprecated
     boolean append(String key, byte[] value, Date expiry)
             throws ClientException;
 
+    /**
+     * Append the given value to the existing value.
+     * 
+     * @param key
+     * @param value
+     * @param expiry
+     *            expire time
+     * @return
+     * @throws ClientException
+     */
+    boolean append(String key, byte[] value, long expiry)
+    		throws ClientException;
+    		
     /**
      * Prepend the given value to the existing value.
      * 
@@ -189,8 +217,22 @@ public interface RomaClient {
      * @return
      * @throws ClientException
      */
+    @Deprecated
     boolean prepend(String key, byte[] value, Date expiry)
             throws ClientException;
+
+    /**
+     * Prepend the given value to the existing value.
+     * 
+     * @param key
+     * @param value
+     * @param expiry
+     *            expire time
+     * @return
+     * @throws ClientException
+     */
+    boolean prepend(String key, byte[] value, long expiry)
+    		throws ClientException;
 
     /**
      * Deletes ta stored value specified by the key
@@ -258,6 +300,9 @@ public interface RomaClient {
      */
     boolean add(String key, byte[] value) throws ClientException;
 
+    @Deprecated
+    boolean add(String key, byte[] value, Date expiry) throws ClientException;
+
     /**
      * Store the value in ROMA if key does not exist.
      * 
@@ -265,11 +310,7 @@ public interface RomaClient {
      *            key to store value
      * @param value
      *            value to store
-     * @param expiry
-     *            expire time
      * @return true, if the value was successfully stored
-     * @throws ClientException
      */
-    boolean add(String key, byte[] value, Date expiry) throws ClientException;
-
+    boolean add(String key, byte[] value, long expiry) throws ClientException;
 }
