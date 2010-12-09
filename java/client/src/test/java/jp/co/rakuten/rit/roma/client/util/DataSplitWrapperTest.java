@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import jp.co.rakuten.rit.roma.client.AllTests;
+import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Node;
 import jp.co.rakuten.rit.roma.client.RomaClient;
 import jp.co.rakuten.rit.roma.client.RomaClientFactory;
@@ -63,6 +64,16 @@ public class DataSplitWrapperTest extends TestCase {
 		KEY = null;
 	}
 
+	public void testExpire0() throws Exception {
+		try {
+			KEY = KEY_PREFIX + "testExpire0";
+			assertTrue(WRAPPER.put(KEY, largeData.getBytes(), 0));
+			fail();
+		} catch (Exception e) {
+			assertTrue(e instanceof ClientException);
+		}
+	}
+
 	public void testPutAndGet01() throws Exception {
 		try {
 			KEY = KEY_PREFIX + "testPutAndGet01";
@@ -102,6 +113,34 @@ public class DataSplitWrapperTest extends TestCase {
 			assertTrue(CLIENT.put(KEY, smallData.getBytes(), 10));
 			byte[] b = WRAPPER.get(KEY);
 			assertEquals(smallData, new String(b));
+		} finally {
+			WRAPPER.delete(KEY);
+		}
+	}
+
+	public void testPutAndGet05() throws Exception {
+		try {
+			KEY = KEY_PREFIX + "testPutAndGet05";
+			assertTrue(CLIENT.put(KEY, largeData.getBytes(), 2));
+			byte[] b = WRAPPER.get(KEY);
+			assertEquals(largeData, new String(b));
+			Thread.sleep(3000);
+			b = WRAPPER.get(KEY);
+			assertEquals(null, b);
+		} finally {
+			WRAPPER.delete(KEY);
+		}
+	}
+
+	public void testPutAndGet06() throws Exception {
+		try {
+			KEY = KEY_PREFIX + "testPutAndGet06";
+			assertTrue(CLIENT.put(KEY, smallData.getBytes(), 2));
+			byte[] b = WRAPPER.get(KEY);
+			assertEquals(smallData, new String(b));
+			Thread.sleep(3000);
+			b = WRAPPER.get(KEY);
+			assertEquals(null, b);
 		} finally {
 			WRAPPER.delete(KEY);
 		}
