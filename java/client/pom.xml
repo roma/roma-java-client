@@ -11,12 +11,6 @@
 	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.arnx</groupId>
 			<artifactId>jsonic</artifactId>
 			<version>1.1.0</version>
@@ -25,6 +19,22 @@
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
 			<version>1.5.1</version>
+		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<organization>
