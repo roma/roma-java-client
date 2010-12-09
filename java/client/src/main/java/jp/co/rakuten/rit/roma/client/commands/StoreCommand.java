@@ -14,8 +14,15 @@ public class StoreCommand extends DefaultCommand {
 
     @Override
     public void create(CommandContext context) throws BadCommandException {
-        StringBuilder sb =
-                (StringBuilder) context.get(CommandContext.STRING_DATA);
+        StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
+        Object obj = context.get(CommandContext.EXPIRY);
+        String expiry;
+        if (obj instanceof Date) {
+        	// the type of object is deprecated
+        	expiry = "" + ((long) (((Date) obj).getTime() / 1000));
+        } else {
+        	expiry = (String) obj;
+        }
         sb.append(getCommand())
                 .append(STR_WHITE_SPACE)
                 .append(context.get(CommandContext.KEY))
@@ -23,8 +30,7 @@ public class StoreCommand extends DefaultCommand {
                 .append(context.get(CommandContext.HASH_NAME))
                 .append(STR_WHITE_SPACE)
                 .append(context.get(CommandContext.HASH))
-                .append(STR_WHITE_SPACE).append(
-                ((Date) context.get(CommandContext.EXPIRY)).getTime() / 1000)
+                .append(STR_WHITE_SPACE).append(expiry)
                 .append(STR_WHITE_SPACE)
                 .append(((byte[]) context.get(CommandContext.VALUE)).length)
                 .append(STR_CRLF);
