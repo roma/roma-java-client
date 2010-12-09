@@ -12,11 +12,14 @@ import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.RomaClient;
 
 /**
- * key: original key value: [magic number][unique count][value len][segs
- * len][each key len[]][each key][each val len[]]
+ * Specification of data format
  * 
- * each key: [original key][:][unigue count][:][key num] each value: segment of
- * value
+ * key: original key
+ * value: 
+ * [magic number][unique count][value len][segs len][each key len and key data][each val len[]]
+ * 
+ * each key: [original key][:][unigue count][:][key num]
+ * each value: segment of value
  */
 public class DataSplitWrapper {
 
