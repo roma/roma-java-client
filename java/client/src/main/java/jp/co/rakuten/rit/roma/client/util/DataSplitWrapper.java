@@ -6,18 +6,19 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.RomaClient;
 
-public class SplitingDataWrapper {
-	private static Logger LOG = LoggerFactory
-			.getLogger(SplitingDataWrapper.class);
+/**
+ * key: original key value: [magic number][unique count][value len][segs
+ * len][each key len[]][each key][each val len[]]
+ * 
+ * each key: [original key][:][unigue count][:][key num] each value: segment of
+ * value
+ */
+public class DataSplitWrapper {
 
 	private static final int DEFAULT_SPLITING_SIZE = 1024;
 
@@ -25,14 +26,14 @@ public class SplitingDataWrapper {
 
 	protected int size;
 
-	private static final byte[] MAGIC_NUMBER = new byte[] { 0x01, 0x02, 0x03,
-			0x04 };
+	private static byte[] MAGIC_NUMBER = new byte[] { 0x36, 0x32, 0x36, 0x31,
+			0x36, 0x63, 0x37, 0x33, 0x36, 0x35 };
 
-	public SplitingDataWrapper(RomaClient client) {
+	public DataSplitWrapper(RomaClient client) {
 		this(client, DEFAULT_SPLITING_SIZE);
 	}
 
-	public SplitingDataWrapper(RomaClient client, int size) {
+	public DataSplitWrapper(RomaClient client, int size) {
 		this.client = client;
 		this.size = size;
 	}
@@ -42,28 +43,38 @@ public class SplitingDataWrapper {
 		if (key == null) {
 			throw new NullPointerException("key is null.");
 		}
+		if (expiry == 0) {
+			throw new ClientException("Cannot specify zero as an expire time.");
+		}
 
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			DataOutputStream dout = new DataOutputStream(out);
+
+			// magic number
 			dout.write(MAGIC_NUMBER);
+
+			// unique count
+			long uniqueCount = System.currentTimeMillis();
+			dout.writeLong(uniqueCount);
+
+			// value length
 			int len = bytes.length;
 			dout.writeInt(len);
 			List<String> keys = new ArrayList<String>();
 			List<Integer> valLens = new ArrayList<Integer>();
-			long time = new Date().getTime();
 			int offset = 0;
 			int num = 0;
 			while (offset < len) {
 				byte[] b;
-				if (len - size >= 0) {
+				if ((len - offset) - size >= 0) {
 					b = new byte[size];
 				} else {
-					b = new byte[len];
+					b = new byte[len - offset];
 				}
 				System.arraycopy(bytes, offset, b, 0, b.length);
 				offset = offset + b.length;
-				String k = key + ":" + num + ":" + time;
+				String k = key + ":" + uniqueCount + ":" + num;
 				keys.add(k);
 				valLens.add(b.length);
 				boolean ret = client.put(k, b, expiry);
@@ -72,13 +83,21 @@ public class SplitingDataWrapper {
 				}
 				num++;
 			}
+
+			// number of segments
 			dout.writeInt(num);
+
+			// size of each key
 			for (String k : keys) {
 				dout.writeInt(k.length());
 			}
+
+			// each key
 			for (String k : keys) {
 				dout.write(k.getBytes("UTF-8"));
 			}
+
+			// size of each segment
 			for (int valLen : valLens) {
 				dout.writeInt(valLen);
 			}
@@ -97,33 +116,45 @@ public class SplitingDataWrapper {
 
 		try {
 			byte[] b = client.get(key);
-			if (b == null) {
+			if (b == null || b.length <= MAGIC_NUMBER.length) {
 				return null;
 			}
 
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			DataInputStream din = new DataInputStream(in);
-			byte[] mn = new byte[4];
+
+			// magic number
+			byte[] mn = new byte[MAGIC_NUMBER.length];
 			din.read(mn);
-			if (MAGIC_NUMBER[0] != mn[0] || MAGIC_NUMBER[1] != mn[1]
-					|| MAGIC_NUMBER[2] != mn[2] || MAGIC_NUMBER[3] != mn[3]) {
+			if (!isChunkData(mn)) {
 				return b;
 			}
 
+			// unique count
+			din.readLong();
+
+			// value length
 			int len = din.readInt();
 			byte[] bytes = new byte[len];
 
+			// number of segments
 			int num = din.readInt();
+
+			// size of each key
 			int[] keyLens = new int[num];
 			for (int i = 0; i < num; ++i) {
 				keyLens[i] = din.readInt();
 			}
+
+			// each key
 			String[] keys = new String[num];
 			for (int i = 0; i < num; ++i) {
 				byte[] k = new byte[keyLens[i]];
 				din.read(k);
 				keys[i] = new String(k, "UTF-8");
 			}
+
+			// size of each segment
 			int[] valLens = new int[num];
 			for (int i = 0; i < num; ++i) {
 				valLens[i] = din.readInt();
@@ -133,7 +164,8 @@ public class SplitingDataWrapper {
 			for (int i = 0; i < num; ++i) {
 				byte[] v = client.get(keys[i]);
 				if (v == null || v.length != valLens[i]) {
-					throw new ClientException("segmentation exception: key: " + keys[i]);
+					throw new ClientException("segmentation exception: key: "
+							+ keys[i]);
 				}
 				System.arraycopy(v, 0, bytes, offset, v.length);
 				offset = offset + v.length;
@@ -142,5 +174,77 @@ public class SplitingDataWrapper {
 		} catch (IOException e) {
 			throw new ClientException(e);
 		}
+	}
+
+	public boolean delete(final String key) throws ClientException {
+		if (key == null) {
+			throw new NullPointerException();
+		}
+
+		try {
+			byte[] b = client.get(key);
+			if (b == null || b.length <= MAGIC_NUMBER.length) {
+				return false;
+			}
+
+			ByteArrayInputStream in = new ByteArrayInputStream(b);
+			DataInputStream din = new DataInputStream(in);
+
+			// magic number
+			byte[] mn = new byte[MAGIC_NUMBER.length];
+			din.read(mn);
+			if (!isChunkData(mn)) {
+				return client.delete(key);
+			}
+
+			// unique count
+			din.readLong();
+
+			// value length
+			din.readInt();
+
+			// number of segments
+			int num = din.readInt();
+
+			// size of each key
+			int[] keyLens = new int[num];
+			for (int i = 0; i < num; ++i) {
+				keyLens[i] = din.readInt();
+			}
+
+			// each key
+			String[] keys = new String[num];
+			for (int i = 0; i < num; ++i) {
+				byte[] k = new byte[keyLens[i]];
+				din.read(k);
+				keys[i] = new String(k, "UTF-8");
+			}
+
+			// size of each segment
+			int[] valLens = new int[num];
+			for (int i = 0; i < num; ++i) {
+				valLens[i] = din.readInt();
+			}
+
+			boolean ret = client.delete(key);
+			for (int i = 0; i < num; ++i) {
+				try {
+					client.delete(keys[i]);
+				} catch (ClientException e) { // ignore
+				}
+			}
+			return ret;
+		} catch (IOException e) {
+			throw new ClientException(e);
+		}
+	}
+
+	private static boolean isChunkData(byte[] mn) {
+		for (int i = 0; i < MAGIC_NUMBER.length; ++i) {
+			if (MAGIC_NUMBER[i] != mn[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
