@@ -58,7 +58,7 @@ public class PerfTest2 extends TestCase {
 	big_loop();
     }
 
-    public void testDeleteAndPrependLoop02() throws Exception {
+    public void XtestDeleteAndPrependLoop02() throws Exception {
 	Thread[] threads = new Thread[NUM_OF_THREADS];
 	for (int i = 0; i < threads.length; ++i) {
 	    threads[i] = new Thread() {
@@ -166,8 +166,8 @@ public class PerfTest2 extends TestCase {
     public static void main(final String[] args) throws Exception {
 	PerfTest2 test = new PerfTest2();
 	test.setUp();
-	test.testDeleteAndPrependLoop02();
-	//test.testDeleteAndPrependLoop01();
+	//test.XtestDeleteAndPrependLoop02();
+	//test.XtestDeleteAndPrependLoop01();
 	test.tearDown();
     }
 }
