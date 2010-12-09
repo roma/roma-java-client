@@ -179,7 +179,7 @@ public class ListWrapper2Test extends TestCase {
 	    assertTrue(LISTUTIL.append(KEY, "02".getBytes()));
 	    assertTrue(LISTUTIL.append(KEY, "03".getBytes()));
 	    
-	    long d = (System.currentTimeMillis() / 1000L) + 2;
+	    long d = 2;
 	    CLIENT.expire(KEY, d);
 	    
 	    List<ListWrapper.Entry> list = LISTUTIL.getEntries(KEY);

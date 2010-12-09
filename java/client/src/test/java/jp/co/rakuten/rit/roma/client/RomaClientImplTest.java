@@ -311,7 +311,7 @@ public class RomaClientImplTest extends TestCase {
             assertTrue(CLIENT.put(KEY, "01".getBytes()));
             byte[] value = CLIENT.get(KEY);
             assertEquals("01", new String(value));
-            long d = (System.currentTimeMillis() / 1000L) + 2;
+            long d = 2;
             CLIENT.expire(KEY, d);
             value = CLIENT.get(KEY);
             assertEquals("01", new String(value));
@@ -330,7 +330,7 @@ public class RomaClientImplTest extends TestCase {
             assertTrue(CLIENT.put(KEY, "01".getBytes(), two));
             byte[] value = CLIENT.get(KEY);
             assertEquals("01", new String(value));
-            long d = (System.currentTimeMillis() / 1000L) + 4;
+            long d = 4;
             CLIENT.expire(KEY, d);
             Thread.sleep(3000);
             value = CLIENT.get(KEY);
