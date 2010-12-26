@@ -1,8 +1,5 @@
 package jp.co.rakuten.rit.roma.client.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import jp.co.rakuten.rit.roma.client.AllTests;

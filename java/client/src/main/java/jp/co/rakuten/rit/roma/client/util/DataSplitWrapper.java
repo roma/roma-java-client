@@ -16,7 +16,7 @@ import jp.co.rakuten.rit.roma.client.RomaClient;
  * 
  * key: original key
  * value: 
- * [magic number][unique count][value len][segs len][each key len and key data][each val len[]]
+ * [magic number][unique count][value len][segs len][each val len[]]
  * 
  * each key: [original key][:][unigue count][:][key num]
  * each value: segment of value
@@ -64,7 +64,6 @@ public class DataSplitWrapper {
 			// value length
 			int len = bytes.length;
 			dout.writeInt(len);
-			List<String> keys = new ArrayList<String>();
 			List<Integer> valLens = new ArrayList<Integer>();
 			int offset = 0;
 			int num = 0;
@@ -78,7 +77,6 @@ public class DataSplitWrapper {
 				System.arraycopy(bytes, offset, b, 0, b.length);
 				offset = offset + b.length;
 				String k = key + ":" + uniqueCount + ":" + num;
-				keys.add(k);
 				valLens.add(b.length);
 				boolean ret = client.put(k, b, expiry);
 				if (!ret) {
@@ -89,13 +87,6 @@ public class DataSplitWrapper {
 
 			// number of segments
 			dout.writeInt(num);
-
-			// each key
-			for (String k : keys) {
-				byte[] keyBytes = k.getBytes("UTF-8");
-				dout.writeInt(keyBytes.length);
-				dout.write(keyBytes);
-			}
 
 			// size of each segment
 			for (int valLen : valLens) {
@@ -131,7 +122,7 @@ public class DataSplitWrapper {
 			}
 
 			// unique count
-			din.readLong();
+			long uniqueCount = din.readLong();
 
 			// value length
 			int len = din.readInt();
@@ -139,15 +130,6 @@ public class DataSplitWrapper {
 
 			// number of segments
 			int num = din.readInt();
-
-			// size of each key
-			String[] keys = new String[num];
-			for (int i = 0; i < num; ++i) {
-				int l = din.readInt();
-				byte[] k = new byte[l];
-				din.read(k);
-				keys[i] = new String(k, "UTF-8");
-			}
 
 			// size of each segment
 			int[] valLens = new int[num];
@@ -157,10 +139,10 @@ public class DataSplitWrapper {
 
 			int offset = 0;
 			for (int i = 0; i < num; ++i) {
-				byte[] v = client.get(keys[i]);
+				String k = key + ":" + uniqueCount + ":" + i;
+				byte[] v = client.get(k);
 				if (v == null || v.length != valLens[i]) {
-					throw new ClientException("segmentation exception: key: "
-							+ keys[i]);
+					throw new ClientException("segmentation exception: key: " + k);
 				}
 				System.arraycopy(v, 0, bytes, offset, v.length);
 				offset = offset + v.length;
@@ -193,22 +175,13 @@ public class DataSplitWrapper {
 			}
 
 			// unique count
-			din.readLong();
+			long uniqueCount = din.readLong();
 
 			// value length
 			din.readInt();
 
 			// number of segments
 			int num = din.readInt();
-
-			// each key
-			String[] keys = new String[num];
-			for (int i = 0; i < num; ++i) {
-				int l = din.readInt();
-				byte[] k = new byte[l];
-				din.read(k);
-				keys[i] = new String(k, "UTF-8");
-			}
 
 			// size of each segment
 			int[] valLens = new int[num];
@@ -219,7 +192,8 @@ public class DataSplitWrapper {
 			boolean ret = client.delete(key);
 			for (int i = 0; i < num; ++i) {
 				try {
-					client.delete(keys[i]);
+					String k = key + ":" + uniqueCount + ":" + i;
+					client.delete(k);
 				} catch (ClientException e) { // ignore
 				}
 			}
