@@ -4,12 +4,11 @@ import java.io.IOException;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
 
-public class RoutingmhtCommand extends DefaultCommand {
+public class RoutingmhtCommand extends AbstractCommand {
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append("mklhash 0\r\n");
         context.put(CommandContext.STRING_DATA, sb);
@@ -28,8 +27,7 @@ public class RoutingmhtCommand extends DefaultCommand {
     }
 
     @Override
-    protected boolean parseResult(CommandContext context)
-            throws ClientException {
+    protected boolean parseResult(CommandContext context) throws ClientException {
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         context.put(CommandContext.RESULT, sb.toString());
         return true;

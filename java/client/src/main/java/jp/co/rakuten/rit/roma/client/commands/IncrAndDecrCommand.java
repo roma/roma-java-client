@@ -5,16 +5,13 @@ import java.math.BigInteger;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 
 /**
  * 
  */
-public class IncrAndDecrCommand extends DefaultCommand {
-
+public class IncrAndDecrCommand extends AbstractCommand {
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append(getCommand()).append(STR_WHITE_SPACE).append(
                 context.get(CommandContext.KEY))
@@ -26,8 +23,8 @@ public class IncrAndDecrCommand extends DefaultCommand {
         context.put(CommandContext.STRING_DATA, sb);
     }
 
-    protected String getCommand() throws BadCommandException {
-        throw new BadCommandException();
+    protected String getCommand() throws ClientException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -52,7 +49,7 @@ public class IncrAndDecrCommand extends DefaultCommand {
         } else if (ret.startsWith("SERVER_ERROR")
         	|| ret.startsWith("CLIENT_ERROR")
         	|| ret.startsWith("ERROR")) {
-            throw new CommandException(ret);
+            throw new ClientException(ret);
         } else { // big integer
             context.put(CommandContext.RESULT, new BigInteger(ret));
             return true;

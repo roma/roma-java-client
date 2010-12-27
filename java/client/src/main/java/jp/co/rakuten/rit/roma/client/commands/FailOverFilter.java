@@ -11,35 +11,31 @@ import jp.co.rakuten.rit.roma.client.Config;
 import jp.co.rakuten.rit.roma.client.Connection;
 import jp.co.rakuten.rit.roma.client.ConnectionPool;
 import jp.co.rakuten.rit.roma.client.Node;
-import jp.co.rakuten.rit.roma.client.command.AbstractCommandFilter;
-import jp.co.rakuten.rit.roma.client.command.Command;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 /**
  * 
  */
-public class FailOverFilter extends AbstractCommandFilter {
+public class FailOverFilter extends AbstractCommand {
 
     public static long sleepPeriod = Long.parseLong(Config.DEFAULT_RETRY_SLEEP_TIME);
     public static int retryThreshold = Integer.parseInt(Config.DEFAULT_RETRY_THRESHOLD);
 
-    public FailOverFilter() {
+    public FailOverFilter(Command next) {
+    	super(next);
     }
 
     @Override
-    public boolean aroundExecute(Command command, CommandContext context)
-            throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         RoutingTable routingTable = (RoutingTable) context.get(CommandContext.ROUTING_TABLE);
         if (routingTable == null) {
-            throw new CommandException(new BadRoutingTableFormatException(
+            throw new ClientException(new BadRoutingTableFormatException(
                     "routing table is null."));
         }
         String key = (String) context.get(CommandContext.KEY);
         BigInteger hash = routingTable.getHash(key);
         if (hash == null) {
-            throw new CommandException(new BadRoutingTableFormatException(
+            throw new ClientException(new BadRoutingTableFormatException(
                     "hash is null."));
         }
         ConnectionPool connPool = (ConnectionPool)
@@ -53,8 +49,8 @@ public class FailOverFilter extends AbstractCommandFilter {
                 Node node = routingTable.searchNode(key, hash);
                 context.put(CommandContext.HASH, hash);
                 context.put(CommandContext.NODE, node);
-                return command.execute(context);
-            } catch (CommandException e) {
+                return next.execute(context);
+            } catch (ClientException e) {
                 t = e.getCause();
                 if (t != null) {
                     errorMessage = e.getMessage() + ":" + t.toString() + ":" + t.getMessage();
@@ -84,7 +80,7 @@ public class FailOverFilter extends AbstractCommandFilter {
                 if (retryCount < retryThreshold) {
                     retryCount++;
                 } else {
-                    CommandException e = new CommandException(new RetryOutException(errorList.toString()));
+                    ClientException e = new ClientException(new RetryOutException(errorList.toString()));
                     errorList.clear();
                     errorMessage = null;
                     throw e;
@@ -93,11 +89,20 @@ public class FailOverFilter extends AbstractCommandFilter {
         }
     }
 
-    @Override
-    public void preExecute(CommandContext context) throws CommandException {
-    }
+	@Override
+	protected void create(CommandContext context) throws ClientException {
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public void postExecute(CommandContext context) throws CommandException {
-    }
+	@Override
+	protected boolean parseResult(CommandContext context)
+			throws ClientException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void sendAndReceive(CommandContext context) throws IOException,
+			ClientException {
+		throw new UnsupportedOperationException();
+	}
 }

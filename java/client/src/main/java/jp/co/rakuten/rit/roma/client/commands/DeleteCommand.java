@@ -4,15 +4,14 @@ import java.io.IOException;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
 
 /**
  * 
  */
-public class DeleteCommand extends DefaultCommand implements CommandID {
+public class DeleteCommand extends AbstractCommand implements CommandID {
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         // delete <key> [<time>] [noreply]\r\n
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append(STR_DELETE).append(STR_WHITE_SPACE).append(

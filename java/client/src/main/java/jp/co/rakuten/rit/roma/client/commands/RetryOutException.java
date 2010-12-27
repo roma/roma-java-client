@@ -1,11 +1,11 @@
 package jp.co.rakuten.rit.roma.client.commands;
 
-import jp.co.rakuten.rit.roma.client.command.CommandException;
+import jp.co.rakuten.rit.roma.client.ClientException;
 
 /**
  * 
  */
-public class RetryOutException extends CommandException {
+public class RetryOutException extends ClientException {
 
     public RetryOutException() {
         super("Retry out");

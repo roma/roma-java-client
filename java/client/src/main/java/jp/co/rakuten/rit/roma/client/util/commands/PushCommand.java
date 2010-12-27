@@ -1,14 +1,14 @@
 package jp.co.rakuten.rit.roma.client.util.commands;
 
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
+import jp.co.rakuten.rit.roma.client.ClientException;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 
 /**
  * 
  */
 public class PushCommand extends UpdateCommand {
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
 	// alist_push <key> <bytes>\r\n
 	// <value>\r\n
 	StringBuilder sb = (StringBuilder) context

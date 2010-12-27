@@ -5,15 +5,14 @@ import java.util.Date;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
 
 /**
  * 
  */
-public class StoreCommand extends DefaultCommand {
+public class StoreCommand extends AbstractCommand {
 
-    @Override
-    public void create(CommandContext context) throws BadCommandException {
+	@Override
+    public void create(CommandContext context) throws ClientException {
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         Object obj = context.get(CommandContext.EXPIRY);
         String expiry;
@@ -37,8 +36,8 @@ public class StoreCommand extends DefaultCommand {
         context.put(CommandContext.STRING_DATA, sb);
     }
 
-    protected String getCommand() throws BadCommandException {
-        throw new BadCommandException();
+    protected String getCommand() throws ClientException {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -10,25 +10,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Config;
 import jp.co.rakuten.rit.roma.client.Connection;
 import jp.co.rakuten.rit.roma.client.ConnectionPool;
 import jp.co.rakuten.rit.roma.client.Node;
-import jp.co.rakuten.rit.roma.client.command.AbstractCommandFilter;
-import jp.co.rakuten.rit.roma.client.command.Command;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 
 /**
  * 
  */
-public class TimeoutFilter extends AbstractCommandFilter {
+public class TimeoutFilter extends AbstractCommand {
 
     // The maximum time to wait (millis)
     public static long timeout = Long.parseLong(Config.DEFAULT_TIMEOUT_PERIOD);
     public static int numOfThreads = Integer
             .parseInt(Config.DEFAULT_NUM_OF_THREADS);
     private static ExecutorService executor;
+
+    public TimeoutFilter(Command next) {
+    	super(next);
+    }
 
     public static void shutdown() {
         if (executor != null) {
@@ -88,8 +89,7 @@ public class TimeoutFilter extends AbstractCommandFilter {
     }
 
     @Override
-    public boolean aroundExecute(final Command command,
-            final CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         int commandID = (Integer) context.get(CommandContext.COMMAND_ID);
         if (executor == null) {
             if (numOfThreads > 0) {
@@ -101,7 +101,7 @@ public class TimeoutFilter extends AbstractCommandFilter {
             // executor = Executors.newCachedThreadPool();
         }
 
-        Callable<Boolean> task = new CallableImpl(command, context);
+        Callable<Boolean> task = new CallableImpl(next, context);
         Future<Boolean> future = executor.submit(task);
         Throwable t = null;
         try {
@@ -135,23 +135,32 @@ public class TimeoutFilter extends AbstractCommandFilter {
                     } catch (IOException e) { // ignore
 		    }
                 }
-                throw new CommandException(new TimeoutException(t));
+                throw new ClientException(new TimeoutException(t));
             } else { // otherwise
-                if (t instanceof CommandException) {
-                    throw (CommandException) t;
+                if (t instanceof ClientException) {
+                    throw (ClientException) t;
                 } else {
-                    throw new CommandException(t);
+                    throw new ClientException(t);
                 }
             }
         }
         return false;
     }
 
-    @Override
-    public void postExecute(CommandContext context) throws CommandException {
-    }
+	@Override
+	protected void create(CommandContext context) throws ClientException {
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public void preExecute(CommandContext context) throws CommandException {
-    }
+	@Override
+	protected boolean parseResult(CommandContext context)
+			throws ClientException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void sendAndReceive(CommandContext context) throws IOException,
+			ClientException {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -5,22 +5,20 @@ import java.util.StringTokenizer;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
-import jp.co.rakuten.rit.roma.client.commands.DefaultCommand;
+import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 
 /**
  * 
  */
-public class JoinWithTimeCommand extends DefaultCommand {
+public class JoinWithTimeCommand extends AbstractCommand {
 
     public static final String SEP = "_$$_";
     public static final String NULL = "";
     public static final String RANGE = "..";
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // alist_join_with_time key <bytes>\r\n
             // value\r\n
@@ -59,9 +57,9 @@ public class JoinWithTimeCommand extends DefaultCommand {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
-                throw new CommandException("Not supported yet.");
+                throw new ClientException("Not supported yet.");
             }
 
             // value
@@ -106,12 +104,12 @@ public class JoinWithTimeCommand extends DefaultCommand {
             // return value;
             return true;
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

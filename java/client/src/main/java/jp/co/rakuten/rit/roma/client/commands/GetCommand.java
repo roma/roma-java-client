@@ -5,16 +5,14 @@ import java.util.StringTokenizer;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 
 /**
  * 
  */
-public class GetCommand extends DefaultCommand implements CommandID {
+public class GetCommand extends AbstractCommand implements CommandID {
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // "get key\r\n"
             StringBuilder sb = new StringBuilder();
@@ -38,9 +36,9 @@ public class GetCommand extends DefaultCommand implements CommandID {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
-                throw new CommandException("Not supported yet. s: " + s);
+                throw new ClientException("Not supported yet. s: " + s);
             }
 
             StringTokenizer t = new StringTokenizer(s);
@@ -65,7 +63,7 @@ public class GetCommand extends DefaultCommand implements CommandID {
             conn.in.readLine(); // "END\r\n"
             return true;
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
@@ -76,7 +74,7 @@ public class GetCommand extends DefaultCommand implements CommandID {
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

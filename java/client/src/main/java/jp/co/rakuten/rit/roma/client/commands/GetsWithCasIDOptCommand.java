@@ -21,11 +21,9 @@ import jp.co.rakuten.rit.roma.client.Config;
 import jp.co.rakuten.rit.roma.client.Connection;
 import jp.co.rakuten.rit.roma.client.ConnectionPool;
 import jp.co.rakuten.rit.roma.client.Node;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
-public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID {
+public class GetsWithCasIDOptCommand extends AbstractCommand {
     private static ExecutorService executor;
 
     public static int numOfThreads = Integer
@@ -79,9 +77,9 @@ public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
-                throw new CommandException("Not supported yet.");
+                throw new ClientException("Not supported yet.");
             }
 
             do {
@@ -111,14 +109,14 @@ public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID
     }
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         // "gets <key>*\r\n"
         List<String> keys = (List<String>) context.get(CommandContext.KEYS);
 
         RoutingTable routingTable = (RoutingTable) context
                 .get(CommandContext.ROUTING_TABLE);
         if (routingTable == null) {
-            throw new CommandException(new BadRoutingTableFormatException(
+            throw new ClientException(new BadRoutingTableFormatException(
                     "routing table is null."));
         }
 
@@ -127,7 +125,7 @@ public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID
             String key = iter.next();
             BigInteger hash = routingTable.getHash(key);
             if (hash == null) {
-                throw new CommandException(new BadRoutingTableFormatException(
+                throw new ClientException(new BadRoutingTableFormatException(
                         "hash is null."));
             }
             Node node = routingTable.searchNode(key, hash);
@@ -183,7 +181,7 @@ public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID
 
         // error handling
         if (t != null) {
-            throw new CommandException(t);
+            throw new ClientException(t);
         }
         return false;
     }
@@ -195,7 +193,7 @@ public class GetsWithCasIDOptCommand extends DefaultCommand implements CommandID
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

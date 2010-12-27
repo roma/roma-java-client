@@ -4,14 +4,13 @@ import java.io.IOException;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
-import jp.co.rakuten.rit.roma.client.commands.DefaultCommand;
+import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 
 /**
  * 
  */
-public class UpdateCommand extends DefaultCommand {
+public class UpdateCommand extends AbstractCommand {
 
     public static final String INDEX = "index";
     public static final String ARRAY_SIZE = "array-size";
@@ -19,7 +18,7 @@ public class UpdateCommand extends DefaultCommand {
     public static final String EXPIRY = "expiry";
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

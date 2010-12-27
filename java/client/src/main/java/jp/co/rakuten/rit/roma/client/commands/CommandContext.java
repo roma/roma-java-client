@@ -1,4 +1,4 @@
-package jp.co.rakuten.rit.roma.client.command;
+package jp.co.rakuten.rit.roma.client.commands;
 
 import java.util.HashMap;
 

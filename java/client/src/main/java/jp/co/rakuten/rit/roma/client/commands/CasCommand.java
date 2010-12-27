@@ -5,12 +5,11 @@ import java.util.Date;
 import jp.co.rakuten.rit.roma.client.CasResponse;
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
 
-public class CasCommand extends DefaultCommand {
+public class CasCommand extends AbstractCommand {
 
-    @Override
-    protected void create(CommandContext context) throws BadCommandException {
+	@Override
+    protected void create(CommandContext context) throws ClientException {
         StringBuilder sb =
             (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append(STR_CAS)

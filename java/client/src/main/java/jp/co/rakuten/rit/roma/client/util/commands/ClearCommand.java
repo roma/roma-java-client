@@ -4,18 +4,16 @@ import java.io.IOException;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
-import jp.co.rakuten.rit.roma.client.commands.DefaultCommand;
+import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 
 /**
  * 
  */
-public class ClearCommand extends DefaultCommand {
+public class ClearCommand extends AbstractCommand {
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // alist_clear <key>\r\n
             StringBuilder sb = new StringBuilder();
@@ -41,18 +39,18 @@ public class ClearCommand extends DefaultCommand {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
                 //throw new UnsupportedOperationException(s);
                 return false;
             }
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

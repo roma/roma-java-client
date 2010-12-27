@@ -8,9 +8,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.command.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jp.co.rakuten.rit.roma.client.commands.Command;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 import jp.co.rakuten.rit.roma.client.commands.CommandID;
 import jp.co.rakuten.rit.roma.client.commands.GetsOptCommand;
 import jp.co.rakuten.rit.roma.client.commands.TimeoutFilter;
@@ -22,6 +24,8 @@ import jp.co.rakuten.rit.roma.client.commands.TimeoutFilter;
  * @version 0.3.5
  */
 public class RomaClientImpl extends AbstractRomaClient {
+
+	private static Logger LOG = LoggerFactory.getLogger(RomaClientImpl.class);
 
 	protected boolean opened = false;
 
@@ -148,8 +152,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			} else {
 				return null;
 			}
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("routingdump failed: " + node, e);
+			throw e;
 		}
 	}
 
@@ -180,8 +185,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			} else {
 				return null;
 			}
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("routingmht failed: " + node, e);
+			throw e;
 		}
 	}
 
@@ -283,8 +289,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.COMMAND_ID, commandID);
 			Command command = commandGenerator.getCommand(commandID);
 			return exec(command, context);
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("update failed: " + key, e);
+			throw e;
 		}
 	}
 
@@ -301,8 +308,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.COMMAND_ID, commandID);
 			Command command = commandGenerator.getCommand(commandID);
 			return exec(command, context);
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("update failed: " + key, e);
+			throw e;
 		}
 	}
 
@@ -368,8 +376,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			} else {
 				return null;
 			}
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("gets failed: " + keys, e);
+			throw e;
 		}
 	}
 
@@ -390,8 +399,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.COMMAND_ID, commandID);
 			Command command = commandGenerator.getCommand(commandID);
 			return exec(command, context);
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("delete failed: " + key, e);
+			throw e;
 		}
 	}
 
@@ -426,8 +436,9 @@ public class RomaClientImpl extends AbstractRomaClient {
 			} else {
 				return new BigInteger("-1");
 			}
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("incr or decr failed: " + key, e);
+			throw e;
 		}
 	}
 
@@ -481,23 +492,14 @@ public class RomaClientImpl extends AbstractRomaClient {
 			} else {
 				return null;
 			}
-		} catch (CommandException e) {
-			throw toClientException(e);
+		} catch (ClientException e) {
+			LOG.error("cas failed: " + key, e);
+			throw e;
 		}
 	}
 
-	public boolean exec(Command command, CommandContext context)
-			throws CommandException {
+	public boolean exec(Command command, CommandContext context) throws ClientException {
 		return command.execute(context);
 	}
 
-	public static ClientException toClientException(CommandException e)
-			throws ClientException {
-		Throwable t = e.getCause();
-		if (t instanceof ClientException) {
-			return (ClientException) t;
-		} else {
-			return new ClientException(e.getCause());
-		}
-	}
 }

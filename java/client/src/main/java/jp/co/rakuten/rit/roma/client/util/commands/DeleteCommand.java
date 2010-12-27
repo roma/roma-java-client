@@ -4,18 +4,17 @@ import java.io.IOException;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
-import jp.co.rakuten.rit.roma.client.commands.DefaultCommand;
+import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
+
 
 /**
  * 
  */
-public class DeleteCommand extends DefaultCommand {
+public class DeleteCommand extends AbstractCommand {
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // alist_delete <key> <bytes>\r\n
             // <element>\r\n
@@ -44,17 +43,17 @@ public class DeleteCommand extends DefaultCommand {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
                 return false;
             }
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

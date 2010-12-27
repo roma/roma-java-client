@@ -7,18 +7,16 @@ import java.util.StringTokenizer;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.commands.BadCommandException;
-import jp.co.rakuten.rit.roma.client.commands.DefaultCommand;
+import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 
 /**
  * 
  */
-public class GetsWithTimeCommand extends DefaultCommand {
+public class GetsWithTimeCommand extends AbstractCommand {
 
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // alist_gets_with_time <key> [index|range] [forward]\r\n #
             StringBuilder sb = new StringBuilder();
@@ -59,9 +57,9 @@ public class GetsWithTimeCommand extends DefaultCommand {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
-                throw new CommandException("Not supported yet.");
+                throw new ClientException("Not supported yet.");
             }
             conn.in.readLine(); // "length\r\n"
 
@@ -96,12 +94,12 @@ public class GetsWithTimeCommand extends DefaultCommand {
             context.put(CommandContext.RESULT, ret);
             return true;
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

@@ -9,12 +9,10 @@ import java.util.StringTokenizer;
 import jp.co.rakuten.rit.roma.client.CasValue;
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
 
-public class GetsWithCasIDCommand  extends DefaultCommand implements CommandID {
+public class GetsWithCasIDCommand  extends AbstractCommand {
     @Override
-    public boolean execute(CommandContext context) throws CommandException {
+    public boolean execute(CommandContext context) throws ClientException {
         try {
             // "gets <key>*\r\n"
             StringBuilder sb = new StringBuilder();
@@ -42,9 +40,9 @@ public class GetsWithCasIDCommand  extends DefaultCommand implements CommandID {
             } else if (s.startsWith("SERVER_ERROR")
         	    || s.startsWith("CLIENT_ERROR")
         	    || s.startsWith("ERROR")) {
-                throw new CommandException(s);
+                throw new ClientException(s);
             } else {
-                throw new CommandException("Not supported yet.");
+                throw new ClientException("Not supported yet.");
             }
 
             do {
@@ -72,7 +70,7 @@ public class GetsWithCasIDCommand  extends DefaultCommand implements CommandID {
             context.put(CommandContext.RESULT, values);
             return true;
         } catch (IOException e) {
-            throw new CommandException(e);
+            throw new ClientException(e);
         }
     }
 
@@ -83,7 +81,7 @@ public class GetsWithCasIDCommand  extends DefaultCommand implements CommandID {
     }
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         throw new UnsupportedOperationException();
     }
 

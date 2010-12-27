@@ -5,10 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import jp.co.rakuten.rit.roma.client.command.Command;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.command.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.Command;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 /**
@@ -286,8 +285,7 @@ public interface RomaClient {
      */
     CasResponse cas(String key, long casID, byte[] value, Date expiry) throws ClientException;
 
-    boolean exec(Command command, CommandContext context)
-            throws CommandException;
+    boolean exec(Command command, CommandContext context) throws ClientException;
 
     /**
      * Store the value in ROMA if key does not exist.

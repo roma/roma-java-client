@@ -1,10 +1,11 @@
 package jp.co.rakuten.rit.roma.client.commands;
 
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
+import jp.co.rakuten.rit.roma.client.ClientException;
+
 
 public class ExpireCommand extends StoreCommand {
     @Override
-    public void create(CommandContext context) throws BadCommandException {
+    public void create(CommandContext context) throws ClientException {
         StringBuilder sb =
                 (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append(getCommand())
@@ -18,7 +19,7 @@ public class ExpireCommand extends StoreCommand {
         context.put(CommandContext.STRING_DATA, sb);
     }
 
-    protected String getCommand() throws BadCommandException {
+    protected String getCommand() throws ClientException {
         return STR_EXPIRE;
     }
 }

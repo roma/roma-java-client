@@ -2,7 +2,7 @@ package jp.co.rakuten.rit.roma.client;
 
 import java.util.Properties;
 
-import jp.co.rakuten.rit.roma.client.command.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
 import jp.co.rakuten.rit.roma.client.commands.CommandGeneratorImpl;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 

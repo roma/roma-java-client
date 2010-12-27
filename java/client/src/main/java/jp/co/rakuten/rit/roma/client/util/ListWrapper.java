@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.RomaClient;
 import jp.co.rakuten.rit.roma.client.RomaClientImpl;
-import jp.co.rakuten.rit.roma.client.command.Command;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
-import jp.co.rakuten.rit.roma.client.command.CommandException;
-import jp.co.rakuten.rit.roma.client.command.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
+import jp.co.rakuten.rit.roma.client.commands.Command;
+import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 import jp.co.rakuten.rit.roma.client.commands.FailOverFilter;
 import jp.co.rakuten.rit.roma.client.commands.TimeoutFilter;
 import jp.co.rakuten.rit.roma.client.util.commands.ClearCommand;
@@ -88,6 +90,8 @@ import jp.co.rakuten.rit.roma.client.util.commands.UpdateCommand;
  */
 public class ListWrapper {
 
+	private static Logger LOG = LoggerFactory.getLogger(ListWrapper.class);
+
     public static class Entry {
 
         private byte[] value;
@@ -132,77 +136,27 @@ public class ListWrapper {
         this.client = client;
         setListSize(listSize);
         setExpiry(expiry);
-        Exception ex = null;
-        try {
-            CommandGenerator commandGen = client.getCommandGenerator();
-            commandGen.createCommand(ListCommandID.ALIST_PUSH,
-                    PushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SIZED_PUSH,
-                    SizedPushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_PUSH,
-                    SwapAndPushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_SIZED_PUSH,
-                    SwapAndSizedPushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_PUSH,
-                    ExpiredSwapAndPushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_SIZED_PUSH,
-                    ExpiredSwapAndSizedPushCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_DELETE_AT,
-                    DeleteAtCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_DELETE,
-                    DeleteCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_INSERT,
-                    InsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SIZED_INSERT,
-                    SizedInsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_INSERT,
-                    SwapAndInsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_SIZED_INSERT,
-                    SwapAndSizedInsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_INSERT,
-                    ExpiredSwapAndInsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_SIZED_INSERT,
-                    ExpiredSwapAndSizedInsertCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_JOIN,
-                    JoinCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_JOIN_WITH_TIME,
-                    JoinWithTimeCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_GETS,
-                    GetsCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_GETS_WITH_TIME,
-                    GetsWithTimeCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_CLEAR,
-                    ClearCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-            commandGen.createCommand(ListCommandID.ALIST_LENGTH,
-                    LengthCommand.class,
-                    new Class[]{TimeoutFilter.class, FailOverFilter.class});
-        } catch (InstantiationException e) {
-            ex = e;
-        } catch (IllegalAccessException e) {
-            ex = e;
-        }
-        if (ex != null) {
-            throw new ClientException(ex);
-        }
+        CommandGenerator commandGen = client.getCommandGenerator();
+        commandGen.createCommand(ListCommandID.ALIST_PUSH, new FailOverFilter(new TimeoutFilter(new PushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SIZED_PUSH, new FailOverFilter(new TimeoutFilter(new SizedPushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_PUSH, new FailOverFilter(new TimeoutFilter(new SwapAndPushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_SIZED_PUSH, new FailOverFilter(new TimeoutFilter(new SwapAndSizedPushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_PUSH, new FailOverFilter(new TimeoutFilter(new ExpiredSwapAndPushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_SIZED_PUSH, new FailOverFilter(new TimeoutFilter(new ExpiredSwapAndSizedPushCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_DELETE_AT, new FailOverFilter(new TimeoutFilter(new DeleteAtCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_DELETE, new FailOverFilter(new TimeoutFilter(new DeleteCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_INSERT, new FailOverFilter(new TimeoutFilter(new InsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SIZED_INSERT, new FailOverFilter(new TimeoutFilter(new SizedInsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_INSERT, new FailOverFilter(new TimeoutFilter(new SwapAndInsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_SWAP_AND_SIZED_INSERT, new FailOverFilter(new TimeoutFilter(new SwapAndSizedInsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_INSERT, new FailOverFilter(new TimeoutFilter(new ExpiredSwapAndInsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_EXPIRED_SWAP_AND_SIZED_INSERT, new FailOverFilter(new TimeoutFilter(new ExpiredSwapAndSizedInsertCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_JOIN, new FailOverFilter(new TimeoutFilter(new JoinCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_JOIN_WITH_TIME, new FailOverFilter(new TimeoutFilter(new JoinWithTimeCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_GETS, new FailOverFilter(new TimeoutFilter(new GetsCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_GETS_WITH_TIME, new FailOverFilter(new TimeoutFilter(new GetsWithTimeCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_CLEAR, new FailOverFilter(new TimeoutFilter(new ClearCommand())));
+        commandGen.createCommand(ListCommandID.ALIST_LENGTH, new FailOverFilter(new TimeoutFilter(new LengthCommand())));
     }
 
     public void setListSize(int listSize) {
@@ -324,8 +278,9 @@ public class ListWrapper {
             Command command = client.getCommandGenerator().getCommand(commandID);
             context.put(CommandContext.COMMAND_ID, commandID);
             return client.exec(command, context);
-        } catch (CommandException e) {
-            throw RomaClientImpl.toClientException(e);
+        } catch (ClientException e) {
+        	LOG.error("update list failed: " + key, e);
+            throw e;
         }
     }
 
@@ -392,8 +347,9 @@ public class ListWrapper {
             } else {
                 return new ArrayList<Object>();
             }
-        } catch (CommandException e) {
-            throw RomaClientImpl.toClientException(e);
+        } catch (ClientException e) {
+        	LOG.error("get failed: " + key, e);
+            throw e;
         }
     }
 
@@ -413,8 +369,9 @@ public class ListWrapper {
             } else {
                 return 0;
             }
-        } catch (CommandException e) {
-            throw RomaClientImpl.toClientException(e);
+        } catch (ClientException e) {
+        	LOG.error("size failed: " + key, e);
+        	throw e;
         }
     }
 }

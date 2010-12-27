@@ -6,15 +6,14 @@ import net.arnx.jsonic.JSON;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.Connection;
-import jp.co.rakuten.rit.roma.client.command.CommandContext;
 
 /**
  * 
  */
-public class RoutingdumpCommand extends DefaultCommand {
+public class RoutingdumpCommand extends AbstractCommand {
 
     @Override
-    protected void create(CommandContext context) throws BadCommandException {
+    protected void create(CommandContext context) throws ClientException {
         StringBuilder sb = (StringBuilder) context.get(CommandContext.STRING_DATA);
         sb.append("routingdump json\r\n");
         context.put(CommandContext.STRING_DATA, sb);
