@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
 import jp.co.rakuten.rit.roma.client.commands.Command;
 import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
@@ -28,9 +27,9 @@ public interface RomaClient {
 
     RoutingTable getRoutingTable();
 
-    void setCommandGenerator(CommandGenerator commandGenerator);
+    void setCommandFactory(CommandFactory commandGenerator);
 
-    CommandGenerator getCommandGenerator();
+    CommandFactory getCommandFactory();
 
     void setTimeout(long timeout);
 

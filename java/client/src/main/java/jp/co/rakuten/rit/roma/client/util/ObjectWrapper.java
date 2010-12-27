@@ -62,11 +62,17 @@ public class ObjectWrapper<T> {
     }
 
     public boolean put(String key, T obj) throws ClientException, IOException {
-        return put(key, obj, new Date(0));
+        return put(key, obj, 0L);
     }
 
+    @Deprecated
     public boolean put(String key, T obj, Date expiry) throws ClientException,
             IOException {
+        byte[] value = DataSerialization.toByteArray(obj);
+        return client.put(key, value, expiry);
+    }
+
+    public boolean put(String key, T obj, long expiry) throws ClientException, IOException {
         byte[] value = DataSerialization.toByteArray(obj);
         return client.put(key, value, expiry);
     }

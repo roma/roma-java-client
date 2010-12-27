@@ -4,20 +4,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jp.co.rakuten.rit.roma.client.ClientException;
+import jp.co.rakuten.rit.roma.client.CommandFactory;
 
 /**
  * 
  */
-public class CommandGeneratorImpl implements CommandGenerator {
+public class CommandFactoryImpl implements CommandFactory {
 
     // protected HashMap<Integer, Command> commands = new HashMap<Integer, Command>();
     protected Map<Integer, Command> commands = new ConcurrentHashMap<Integer, Command>();
 
-    public CommandGeneratorImpl() throws ClientException {
+    public CommandFactoryImpl() throws ClientException {
         init();
     }
 
-    @SuppressWarnings("unchecked")
     protected void init() throws ClientException {
     	createCommand(CommandID.GET, new FailOverFilter(new TimeoutFilter(new GetCommand())));
     	createCommand(CommandID.GETS, new FailOverFilter(new TimeoutFilter(new GetsCommand())));

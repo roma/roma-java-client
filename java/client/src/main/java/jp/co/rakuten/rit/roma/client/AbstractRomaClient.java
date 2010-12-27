@@ -1,6 +1,5 @@
 package jp.co.rakuten.rit.roma.client;
 
-import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
 import jp.co.rakuten.rit.roma.client.commands.FailOverFilter;
 import jp.co.rakuten.rit.roma.client.commands.TimeoutFilter;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
@@ -12,7 +11,7 @@ public abstract class AbstractRomaClient implements RomaClient {
 
     protected ConnectionPool connPool;
     protected RoutingTable routingTable;
-    protected CommandGenerator commandGenerator;
+    protected CommandFactory commandFact;
     protected String hashName;
 
     public final void setConnectionPool(ConnectionPool pool) {
@@ -31,12 +30,12 @@ public abstract class AbstractRomaClient implements RomaClient {
         return routingTable;
     }
 
-    public final void setCommandGenerator(CommandGenerator commandGenerator) {
-        this.commandGenerator = commandGenerator;
+    public final void setCommandFactory(CommandFactory commandGenerator) {
+        this.commandFact = commandGenerator;
     }
 
-    public final CommandGenerator getCommandGenerator() {
-        return commandGenerator;
+    public final CommandFactory getCommandFactory() {
+        return commandFact;
     }
 
     public final void setTimeout(long timeout) {

@@ -144,7 +144,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.CONNECTION_POOL, connPool);
 			context.put(CommandContext.ROUTING_TABLE, routingTable);
 			context.put(CommandContext.COMMAND_ID, CommandID.ROUTING_DUMP);
-			Command command = commandGenerator
+			Command command = commandFact
 					.getCommand(CommandID.ROUTING_DUMP);
 			boolean ret = command.execute(context);
 			if (ret) {
@@ -172,7 +172,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.CONNECTION_POOL, connPool);
 			context.put(CommandContext.ROUTING_TABLE, routingTable);
 			context.put(CommandContext.COMMAND_ID, CommandID.ROUTING_MKLHASH);
-			Command command = commandGenerator
+			Command command = commandFact
 					.getCommand(CommandID.ROUTING_MKLHASH);
 			boolean ret = exec(command, context);
 			if (ret) {
@@ -287,7 +287,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.VALUE, value);
 			context.put(CommandContext.EXPIRY, expiry);
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			return exec(command, context);
 		} catch (ClientException e) {
 			LOG.error("update failed: " + key, e);
@@ -306,7 +306,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.VALUE, value);
 			context.put(CommandContext.EXPIRY, "" + expiry);
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			return exec(command, context);
 		} catch (ClientException e) {
 			LOG.error("update failed: " + key, e);
@@ -323,7 +323,6 @@ public class RomaClientImpl extends AbstractRomaClient {
 		return (byte[]) gets(CommandID.GET, keys);
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, byte[]> gets(List<String> keys) throws ClientException {
 		return gets(keys, false);
 	}
@@ -338,7 +337,6 @@ public class RomaClientImpl extends AbstractRomaClient {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, CasValue> getsWithCasID(List<String> keys)
 			throws ClientException {
 		return getsWithCasID(keys, false);
@@ -369,7 +367,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.KEYS, keys);
 			context.put(CommandContext.HASH_NAME, hashName);
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			boolean ret = exec(command, context);
 			if (ret) {
 				return context.get(CommandContext.RESULT);
@@ -397,7 +395,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.KEY, key);
 			context.put(CommandContext.HASH_NAME, hashName);
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			return exec(command, context);
 		} catch (ClientException e) {
 			LOG.error("delete failed: " + key, e);
@@ -429,7 +427,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.HASH_NAME, hashName);
 			context.put(CommandContext.VALUE, new Integer(count));
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			boolean ret = exec(command, context);
 			if (ret) {
 				return (BigInteger) context.get(CommandContext.RESULT);
@@ -485,7 +483,7 @@ public class RomaClientImpl extends AbstractRomaClient {
 			context.put(CommandContext.VALUE, value);
 			context.put(CommandContext.EXPIRY, expiry);
 			context.put(CommandContext.COMMAND_ID, commandID);
-			Command command = commandGenerator.getCommand(commandID);
+			Command command = commandFact.getCommand(commandID);
 			boolean ret = exec(command, context);
 			if (ret) {
 				return (CasResponse) context.get(CommandContext.RESULT);

@@ -6,7 +6,7 @@ import jp.co.rakuten.rit.roma.client.ClientException;
 import jp.co.rakuten.rit.roma.client.commands.AbstractCommand;
 import junit.framework.TestCase;
 
-public class CommandGeneratorImplTest extends TestCase {
+public class CommandFactoryImplTest extends TestCase {
     
     public void testDummy() {
 	assertTrue(true);
@@ -16,9 +16,9 @@ public class CommandGeneratorImplTest extends TestCase {
     	TimeoutFilter.timeout = 10;
     	CommandContext context = new CommandContext();
     	context.put(CommandContext.CONNECTION_POOL, new MockConnectionPool());
-    	CommandGeneratorImpl gen = new CommandGeneratorImpl();
-    	gen.createCommand(1, new FailOverFilter(new TimeoutFilter(new TestCommand())));
-    	Command command = gen.getCommand(1);
+    	CommandFactoryImpl fact = new CommandFactoryImpl();
+    	fact.createCommand(1, new FailOverFilter(new TimeoutFilter(new TestCommand())));
+    	Command command = fact.getCommand(1);
     	command.execute(context);
     }
 

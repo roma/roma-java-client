@@ -2,8 +2,7 @@ package jp.co.rakuten.rit.roma.client;
 
 import java.util.Properties;
 
-import jp.co.rakuten.rit.roma.client.commands.CommandGenerator;
-import jp.co.rakuten.rit.roma.client.commands.CommandGeneratorImpl;
+import jp.co.rakuten.rit.roma.client.commands.CommandFactoryImpl;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 /**
@@ -47,7 +46,7 @@ public class RomaClientFactory {
     }
     protected RoutingTable routingTable = null;
     protected ConnectionPool connPool = null;
-    protected CommandGenerator commandGen = null;
+    protected CommandFactory commandFact = null;
 
     protected RomaClientFactory() {
     }
@@ -60,8 +59,8 @@ public class RomaClientFactory {
         this.connPool = connPool;
     }
 
-    public void setCommandGenerator(CommandGenerator commandGenerator) {
-        this.commandGen = commandGenerator;
+    public void setCommandGenerator(CommandFactory commandGenerator) {
+        this.commandFact = commandGenerator;
     }
 
     /**
@@ -130,10 +129,10 @@ public class RomaClientFactory {
         }
 
         // command generator
-        if (commandGen == null) {
-            commandGen = new CommandGeneratorImpl();
+        if (commandFact == null) {
+            commandFact = new CommandFactoryImpl();
         }
-        client.setCommandGenerator(commandGen);
+        client.setCommandFactory(commandFact);
 
         // hash name
         String hashName = props.getProperty(Config.HASH_NAME,
