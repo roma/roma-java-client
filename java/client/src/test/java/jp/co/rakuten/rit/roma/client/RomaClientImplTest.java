@@ -499,7 +499,7 @@ public class RomaClientImplTest extends TestCase {
             conn.out.write(sb.toString().getBytes());
             conn.out.flush();
             String response = conn.in.readLine();
-            if (response.indexOf("\"" + NODE_ID +"\"=>\"DELETED\"") == -1) {
+            if (response.indexOf("=>\"DELETED\"") == -1) {
                 throw new ClientException(response);
             }
         } finally {
