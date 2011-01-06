@@ -481,7 +481,7 @@ public class RomaClientImplTest extends TestCase {
             conn.out.write(sb.toString().getBytes());
             conn.out.flush();
             String response = conn.in.readLine();
-            if (response.indexOf("\"" + NODE_ID +"\"=>\"CREATED\"") == -1) {
+            if (response.indexOf("=>\"CREATED\"") == -1) {
                 throw new ClientException(response);
             }
         } finally {
