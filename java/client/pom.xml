@@ -6,7 +6,7 @@
 	<groupId>jp.co.rakuten.rit.roma</groupId>
 	<artifactId>romac4j</artifactId>
 	<packaging>jar</packaging>
-	<version>0.3.9</version>
+	<version>0.4.0</version>
 	<name>romac4j</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
