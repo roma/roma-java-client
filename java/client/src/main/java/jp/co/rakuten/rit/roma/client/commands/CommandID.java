@@ -36,6 +36,10 @@ public interface CommandID {
 
   String STR_ESC = new String(new byte[] { 0x1b });
 
+  String STR_COMMA = ",";
+
+  String STR_COLON = ":";
+
   String STR_GET = "get";
 
   String STR_GETS = "gets";
@@ -70,5 +74,4 @@ public interface CommandID {
   String STR_ROUTING_MKLHASH = "mklhash";
 
   String STR_CLOSE = "quit";
-
 }
