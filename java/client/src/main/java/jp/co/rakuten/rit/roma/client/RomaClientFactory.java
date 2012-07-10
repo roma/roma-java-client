@@ -41,9 +41,10 @@ public class RomaClientFactory {
   private static RomaClientFactory INSTANCE = null;
 
   public static RomaClientFactory getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new RomaClientFactory();
-    }
+//    if (INSTANCE == null) {
+//      INSTANCE = new RomaClientFactory();
+//    }
+    INSTANCE = new RomaClientFactory();
     return INSTANCE;
   }
 
