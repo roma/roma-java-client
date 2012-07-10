@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import jp.co.rakuten.rit.roma.client.BadRoutingTableFormatException;
 import jp.co.rakuten.rit.roma.client.CasValue;
 import jp.co.rakuten.rit.roma.client.ClientException;
@@ -24,182 +25,182 @@ import jp.co.rakuten.rit.roma.client.Node;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 public class GetsWithCasIDOptCommand extends AbstractCommand {
-    private static ExecutorService executor;
+  private static ExecutorService executor;
 
-    public static int numOfThreads = Integer
-            .parseInt(Config.DEFAULT_NUM_OF_THREADS2);
+  public static int numOfThreads = Integer
+      .parseInt(Config.DEFAULT_NUM_OF_THREADS2);
 
-    public static void shutdown() {
-        if (executor != null) {
-            // executor.shutdown();
-            executor.shutdownNow();
-        }
-        executor = null;
+  public static void shutdown() {
+    if (executor != null) {
+      // executor.shutdown();
+      executor.shutdownNow();
+    }
+    executor = null;
+  }
+
+  public static class CallableImpl implements Callable<Map<String, CasValue>> {
+
+    private CommandContext context;
+
+    private Node node;
+
+    private List<String> keys;
+
+    public CallableImpl(CommandContext context, Node node, List<String> keys) {
+      this.context = context;
+      this.node = node;
+      this.keys = keys;
     }
 
-    public static class CallableImpl implements Callable<Map<String, CasValue>> {
+    public Map<String, CasValue> call() throws Exception {
+      StringBuilder sb = new StringBuilder();
+      sb.append(STR_GETS);
+      for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
+        sb.append(STR_WHITE_SPACE)
+          .append(iter.next())
+          .append(STR_ESC)
+          .append(context.get(CommandContext.HASH_NAME));
+      }
+      sb.append(STR_CRLF);
+      ConnectionPool pool = (ConnectionPool) context
+          .get(CommandContext.CONNECTION_POOL);
+      Connection conn = pool.get(node);
+      conn.out.write(sb.toString().getBytes());
+      conn.out.flush();
 
-        private CommandContext context;
-
-        private Node node;
-
-        private List<String> keys;
-
-        public CallableImpl(CommandContext context, Node node, List<String> keys) {
-            this.context = context;
-            this.node = node;
-            this.keys = keys;
+      HashMap<String, CasValue> values = null;
+      String s;
+      s = conn.in.readLine();
+      if (s.startsWith("VALUE")) {
+        if (values == null) {
+          values = new HashMap<String, CasValue>();
         }
+      } else if (s.startsWith("END")) {
+        return values;
+      } else if (s.startsWith("SERVER_ERROR") || s.startsWith("CLIENT_ERROR")
+          || s.startsWith("ERROR")) {
+        throw new ClientException(s);
+      } else {
+        throw new ClientException("Not supported yet.");
+      }
 
-        public Map<String, CasValue> call() throws Exception {
-            StringBuilder sb = new StringBuilder();
-            sb.append(STR_GETS);
-            for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-                sb.append(STR_WHITE_SPACE).append(iter.next()).append(
-                        STR_ESC).append(context.get(CommandContext.HASH_NAME));
-            }
-            sb.append(STR_CRLF);
-            ConnectionPool pool = (ConnectionPool) context
-                    .get(CommandContext.CONNECTION_POOL);
-            Connection conn = pool.get(node);
-            conn.out.write(sb.toString().getBytes());
-            conn.out.flush();
+      do {
+        StringTokenizer t = new StringTokenizer(s);
+        t.nextToken(); // VALUE
+        String key = t.nextToken(); // key
+        t.nextToken(); // 0
+        int valueLen = Integer.parseInt(t.nextToken()); // len
+        long cas = Long.parseLong(t.nextToken()); // cas ID
 
-            HashMap<String, CasValue> values = null;
-            String s;
-            s = conn.in.readLine();
-            if (s.startsWith("VALUE")) {
-                if (values == null) {
-                    values = new HashMap<String, CasValue>();
-                }
-            } else if (s.startsWith("END")) {
-                return values;
-            } else if (s.startsWith("SERVER_ERROR")
-        	    || s.startsWith("CLIENT_ERROR")
-        	    || s.startsWith("ERROR")) {
-                throw new ClientException(s);
-            } else {
-                throw new ClientException("Not supported yet.");
-            }
-
-            do {
-                StringTokenizer t = new StringTokenizer(s);
-                t.nextToken(); // VALUE
-                String key = t.nextToken(); // key
-                t.nextToken(); // 0
-                int valueLen = Integer.parseInt(t.nextToken()); // len
-                long cas = Long.parseLong(t.nextToken()); // cas ID
-
-                // value
-                byte[] value = new byte[valueLen];
-                int offset = 0;
-                int size = 0;
-                while (offset < valueLen) {
-                    size = conn.in.read(value, offset, valueLen - offset);
-                    offset = offset + size;
-                }
-                conn.in.read(2); // "\r\n"
-                values.put(key, new CasValue(cas, value));
-
-                s = conn.in.readLine();
-            } while (!s.equals("END"));
-
-            return values;
+        // value
+        byte[] value = new byte[valueLen];
+        int offset = 0;
+        int size = 0;
+        while (offset < valueLen) {
+          size = conn.in.read(value, offset, valueLen - offset);
+          offset = offset + size;
         }
+        conn.in.read(2); // "\r\n"
+        values.put(key, new CasValue(cas, value));
+
+        s = conn.in.readLine();
+      } while (!s.equals("END"));
+
+      return values;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean execute(CommandContext context) throws ClientException {
+    // "gets <key>*\r\n"
+    List<String> keys = (List<String>) context.get(CommandContext.KEYS);
+
+    RoutingTable routingTable = (RoutingTable) context
+        .get(CommandContext.ROUTING_TABLE);
+    if (routingTable == null) {
+      throw new ClientException(new BadRoutingTableFormatException(
+          "routing table is null."));
     }
 
-    @Override
-    public boolean execute(CommandContext context) throws ClientException {
-        // "gets <key>*\r\n"
-        List<String> keys = (List<String>) context.get(CommandContext.KEYS);
-
-        RoutingTable routingTable = (RoutingTable) context
-                .get(CommandContext.ROUTING_TABLE);
-        if (routingTable == null) {
-            throw new ClientException(new BadRoutingTableFormatException(
-                    "routing table is null."));
-        }
-
-        Map<Node, List<String>> getsMap = new HashMap<Node, List<String>>();
-        for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-            String key = iter.next();
-            BigInteger hash = routingTable.getHash(key);
-            if (hash == null) {
-                throw new ClientException(new BadRoutingTableFormatException(
-                        "hash is null."));
-            }
-            Node node = routingTable.searchNode(key, hash);
-            List<String> list = getsMap.get(node);
-            if (list == null) {
-                list = new ArrayList<String>();
-            }
-            list.add(key);
-            getsMap.put(node, list);
-        }
-
-        if (executor == null) {
-            if (numOfThreads > 0) {
-                executor = Executors.newFixedThreadPool(numOfThreads);
-            } else {
-                executor = Executors.newCachedThreadPool();
-            }
-            // executor = Executors.newSingleThreadExecutor();
-            // executor = Executors.newCachedThreadPool();
-        }
-
-        Future<Map<String, CasValue>>[] futures = new Future[getsMap.size()];
-        int i = 0;
-        for (Iterator<Node> iter = getsMap.keySet().iterator(); iter.hasNext();) {
-            Node node = iter.next();
-            List<String> keys0 = getsMap.get(node);
-
-            CallableImpl c = new CallableImpl(context, node, keys0);
-            futures[i] = executor.submit(c);
-            i++;
-        }
-
-        Throwable t = null;
-        try {
-            Map<String, CasValue> values = new HashMap<String, CasValue>();
-            for (int j = 0; j < futures.length; ++j) {
-                Map<String, CasValue> ret = futures[j].get();
-                for (Iterator<String> iter = ret.keySet().iterator(); iter
-                        .hasNext();) {
-                    String k = iter.next();
-                    CasValue b = ret.get(k);
-                    values.put(k, b);
-                }
-            }
-            context.put(CommandContext.RESULT, values);
-            return true;
-        } catch (CancellationException e) {
-            t = e;
-        } catch (ExecutionException e) {
-            t = e.getCause();
-        } catch (InterruptedException e) {
-        } // ignore
-
-        // error handling
-        if (t != null) {
-            throw new ClientException(t);
-        }
-        return false;
+    Map<Node, List<String>> getsMap = new HashMap<Node, List<String>>();
+    for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
+      String key = iter.next();
+      BigInteger hash = routingTable.getHash(key);
+      if (hash == null) {
+        throw new ClientException(new BadRoutingTableFormatException(
+            "hash is null."));
+      }
+      Node node = routingTable.searchNode(key, hash);
+      List<String> list = getsMap.get(node);
+      if (list == null) {
+        list = new ArrayList<String>();
+      }
+      list.add(key);
+      getsMap.put(node, list);
     }
 
-    @Override
-    protected void sendAndReceive(CommandContext context) throws IOException,
-            ClientException {
-        throw new UnsupportedOperationException();
+    if (executor == null) {
+      if (numOfThreads > 0) {
+        executor = Executors.newFixedThreadPool(numOfThreads);
+      } else {
+        executor = Executors.newCachedThreadPool();
+      }
+      // executor = Executors.newSingleThreadExecutor();
+      // executor = Executors.newCachedThreadPool();
     }
 
-    @Override
-    protected void create(CommandContext context) throws ClientException {
-        throw new UnsupportedOperationException();
+    Future<Map<String, CasValue>>[] futures = new Future[getsMap.size()];
+    int i = 0;
+    for (Iterator<Node> iter = getsMap.keySet().iterator(); iter.hasNext();) {
+      Node node = iter.next();
+      List<String> keys0 = getsMap.get(node);
+
+      CallableImpl c = new CallableImpl(context, node, keys0);
+      futures[i] = executor.submit(c);
+      i++;
     }
 
-    @Override
-    protected boolean parseResult(CommandContext context)
-            throws ClientException {
-        throw new UnsupportedOperationException();
+    Throwable t = null;
+    try {
+      Map<String, CasValue> values = new HashMap<String, CasValue>();
+      for (int j = 0; j < futures.length; ++j) {
+        Map<String, CasValue> ret = futures[j].get();
+        for (Iterator<String> iter = ret.keySet().iterator(); iter.hasNext();) {
+          String k = iter.next();
+          CasValue b = ret.get(k);
+          values.put(k, b);
+        }
+      }
+      context.put(CommandContext.RESULT, values);
+      return true;
+    } catch (CancellationException e) {
+      t = e;
+    } catch (ExecutionException e) {
+      t = e.getCause();
+    } catch (InterruptedException e) {
+    } // ignore
+
+    // error handling
+    if (t != null) {
+      throw new ClientException(t);
     }
+    return false;
+  }
+
+  @Override
+  protected void sendAndReceive(CommandContext context) throws IOException,
+      ClientException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void create(CommandContext context) throws ClientException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected boolean parseResult(CommandContext context) throws ClientException {
+    throw new UnsupportedOperationException();
+  }
 }
