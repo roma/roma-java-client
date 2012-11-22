@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * A connection to a ROMA process.
@@ -32,6 +33,10 @@ public class Connection {
     this.out = new BufferedOutputStream(sock.getOutputStream());
   }
 
+  public void setTimeout(int timeout) throws SocketException {
+	  this.sock.setSoTimeout(timeout);
+  }
+  
   /**
    * Close this connection.
    * 

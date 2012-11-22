@@ -15,7 +15,6 @@ import jp.co.rakuten.rit.roma.client.commands.Command;
 import jp.co.rakuten.rit.roma.client.commands.CommandContext;
 import jp.co.rakuten.rit.roma.client.commands.CommandID;
 import jp.co.rakuten.rit.roma.client.commands.GetsOptCommand;
-import jp.co.rakuten.rit.roma.client.commands.TimeoutFilter;
 
 /**
  * ROMA client to ROMA, which is a cluster of ROMA instances. The basic usage is
@@ -52,7 +51,7 @@ public class RomaClientImpl extends AbstractRomaClient {
     public void run() {
       // System.out.println("Call Shutdown hook");
       GetsOptCommand.shutdown();
-      TimeoutFilter.shutdown();
+      //TimeoutFilter.shutdown();
     }
   }
 
@@ -87,7 +86,7 @@ public class RomaClientImpl extends AbstractRomaClient {
     routingTable.stopLoop();
     routingTable.clear();
     routingTable = null;
-    TimeoutFilter.shutdown();
+    //TimeoutFilter.shutdown();
     opened = false;
   }
 
