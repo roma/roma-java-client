@@ -32,8 +32,7 @@ public class TimeoutFilter extends AbstractCommand {
     Connection conn = null;
     Throwable t = null;
     boolean ret = false;
-    boolean usepool = commandID != CommandID.ROUTING_DUMP
-        && commandID != CommandID.ROUTING_MKLHASH;
+    boolean usepool = commandID != CommandID.ROUTING_DUMP;
     try {
       node = (Node) context.get(CommandContext.NODE);
       if (usepool) { // general commands
