@@ -87,6 +87,7 @@ public class RomaClientImpl extends AbstractRomaClient {
     routingTable.clear();
     routingTable = null;
     //TimeoutFilter.shutdown();
+    connPool.closeAll();
     opened = false;
   }
 
