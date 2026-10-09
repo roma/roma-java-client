@@ -13,7 +13,7 @@ public class SocketPool implements Closeable {
   private ObjectPool pool;
 
   public SocketPool(final String host, final int port, int max) {
-    pool = new GenericObjectPool(new PoolableObjectFactory() {
+    GenericObjectPool genericPool = new GenericObjectPool(new PoolableObjectFactory() {
 
       public void destroyObject(Object obj) throws Exception {
         if (obj instanceof Socket) {
@@ -23,7 +23,9 @@ public class SocketPool implements Closeable {
 
       public boolean validateObject(Object obj) {
         if (obj instanceof Socket) {
-          return ((Socket) obj).isConnected();
+          Socket socket = (Socket) obj;
+          return socket.isConnected() && !socket.isClosed()
+              && !socket.isInputShutdown() && !socket.isOutputShutdown();
         }
         return false;
       }
@@ -40,6 +42,8 @@ public class SocketPool implements Closeable {
         // do nothing
       }
     }, max);
+    genericPool.setTestOnBorrow(true);
+    pool = genericPool;
   }
 
   public Socket get() throws Exception, NoSuchElementException,
@@ -57,7 +61,7 @@ public class SocketPool implements Closeable {
 
   public void close() throws IOException {
     try {
-      pool.clear();
+      pool.close();
     } catch (Exception e) {
       throw new IOException(e.getMessage());
     }

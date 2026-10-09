@@ -44,14 +44,34 @@ public class Connection {
    *           - if closing this connection fails
    */
   public void close() throws IOException {
-    if (in != null) {
-      in.close();
+    IOException failure = null;
+    try {
+      if (in != null) {
+        in.close();
+      }
+    } catch (IOException e) {
+      failure = e;
     }
-    if (out != null) {
-      out.close();
+    try {
+      if (out != null) {
+        out.close();
+      }
+    } catch (IOException e) {
+      if (failure == null) {
+        failure = e;
+      }
     }
-    if (sock != null) {
-      sock.close();
+    try {
+      if (sock != null) {
+        sock.close();
+      }
+    } catch (IOException e) {
+      if (failure == null) {
+        failure = e;
+      }
+    }
+    if (failure != null) {
+      throw failure;
     }
   }
 
@@ -67,7 +87,29 @@ public class Connection {
 
     public void read(int byteLen) throws IOException {
       for (int i = 0; i < byteLen; ++i) {
-        super.read(one_byte);
+        if (super.read(one_byte) < 0) {
+          throw new IOException("unexpected end of stream");
+        }
+      }
+    }
+
+    /**
+     * Reads exactly {@code byteLen} bytes or throws when the peer closes the
+     * connection. InputStream.read is allowed to return fewer bytes than were
+     * requested, which is common on a network socket.
+     */
+    public void readFully(byte[] bytes, int offset, int byteLen)
+        throws IOException {
+      int end = offset + byteLen;
+      while (offset < end) {
+        int count = super.read(bytes, offset, end - offset);
+        if (count < 0) {
+          throw new IOException("unexpected end of stream");
+        }
+        if (count == 0) {
+          continue;
+        }
+        offset += count;
       }
     }
 
@@ -76,17 +118,23 @@ public class Connection {
 
       long t = System.currentTimeMillis();
 
-      while (super.read(one_byte) > 0) {
+      while (true) {
+        if (super.read(one_byte) < 0) {
+          throw new IOException("unexpected end of stream");
+        }
         if (one_byte[0] == 0x0d) { // \r
+          if (super.read(one_byte) < 0 || one_byte[0] != 0x0a) {
+            throw new IOException("invalid line terminator");
+          }
           break;
         } else {
           ret.append((char) one_byte[0]);
         }
       }
 
-      TIME = TIME + (System.currentTimeMillis() - t);
-
-      super.read(one_byte); // \n
+      synchronized (Connection.class) {
+        TIME = TIME + (System.currentTimeMillis() - t);
+      }
       return ret.toString();
     }
   }

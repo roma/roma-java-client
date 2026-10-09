@@ -47,12 +47,18 @@ public class RoutingTable {
   }
 
   public synchronized void stopLoop() {
-    thread.doStop();
+    if (thread != null) {
+      thread.doStop();
+      thread = null;
+    }
     loopEnabled = false;
   }
 
   public synchronized List<Node> getPhysicalNodes() {
-    return physicalNodes;
+    if (physicalNodes == null) {
+      return null;
+    }
+    return new ArrayList<Node>(physicalNodes);
   }
 
   private synchronized List<Node> getVirtualNodes(String virtualNodeID) {
@@ -88,7 +94,7 @@ public class RoutingTable {
   }
 
   @SuppressWarnings("unchecked")
-  public void init(List<Object> list) {
+  public synchronized void init(List<Object> list) {
     HashMap<String, Object> map = (HashMap<String, Object>) list.get(0);
     // hbits = 2**dgst_bits
     int dgst_bits = ((BigDecimal) map.get("dgst_bits")).intValue();
@@ -216,7 +222,7 @@ public class RoutingTable {
     }
   }
 
-  public Node searchNode(String key, BigInteger hash) {
+  public synchronized Node searchNode(String key, BigInteger hash) {
     Node node = null;
 
     List<Node> nodeList;

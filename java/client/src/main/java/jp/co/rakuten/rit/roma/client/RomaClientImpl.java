@@ -26,6 +26,7 @@ public class RomaClientImpl extends AbstractRomaClient {
   private static Logger LOG = LoggerFactory.getLogger(RomaClientImpl.class);
 
   protected boolean opened = false;
+  private boolean shutdownHookRegistered = false;
 
   public RomaClientImpl() {
   }
@@ -72,8 +73,11 @@ public class RomaClientImpl extends AbstractRomaClient {
       routingTable.startLoop();
       opened = true;
     }
-    Runtime r = Runtime.getRuntime();
-    r.addShutdownHook(new ShutdownHookThread());
+    if (!shutdownHookRegistered) {
+      Runtime r = Runtime.getRuntime();
+      r.addShutdownHook(new ShutdownHookThread());
+      shutdownHookRegistered = true;
+    }
   }
 
   /**
@@ -85,7 +89,6 @@ public class RomaClientImpl extends AbstractRomaClient {
     }
     routingTable.stopLoop();
     routingTable.clear();
-    routingTable = null;
     //TimeoutFilter.shutdown();
     connPool.closeAll();
     opened = false;

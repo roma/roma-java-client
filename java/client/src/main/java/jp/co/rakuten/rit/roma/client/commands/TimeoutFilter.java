@@ -11,8 +11,8 @@ import jp.co.rakuten.rit.roma.client.Node;
 
 public class TimeoutFilter extends AbstractCommand {
   // The maximum time to wait (millis)
-  public static long timeout = Long.parseLong(Config.DEFAULT_TIMEOUT_PERIOD);
-  public static int numOfThreads = Integer
+  public static volatile long timeout = Long.parseLong(Config.DEFAULT_TIMEOUT_PERIOD);
+  public static volatile int numOfThreads = Integer
       .parseInt(Config.DEFAULT_NUM_OF_THREADS);
 
   public TimeoutFilter(Command next) {

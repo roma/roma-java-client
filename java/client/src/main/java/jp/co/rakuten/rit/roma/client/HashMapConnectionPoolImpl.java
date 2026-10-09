@@ -28,22 +28,55 @@ public class HashMapConnectionPoolImpl implements ConnectionPool {
   }
 
   public synchronized void put(Node node, Connection conn) throws IOException {
-    try {
-      pool.get(node).add(conn);
-    } catch (Exception e) {
-      // do nothing
+    if (conn == null) {
+      return;
     }
+    List<Connection> conns = pool.get(node);
+    if (conns == null) {
+      conn.close();
+      return;
+    }
+    if (size > 0 && conns.size() >= size) {
+      conn.close();
+      return;
+    }
+    conns.add(conn);
   }
 
   public synchronized void delete(Node node, Connection conn) {
-    // pool.remove(node);
+    if (conn != null) {
+      try {
+        conn.close();
+      } catch (IOException e) {
+        // ConnectionPool#delete cannot report failures.
+      }
+    }
   }
 
   public synchronized void deleteAll(Node node) {
-    //
+    List<Connection> conns = pool.remove(node);
+    if (conns == null) {
+      return;
+    }
+    for (Connection conn : conns) {
+      try {
+        conn.close();
+      } catch (IOException e) {
+        // ConnectionPool#deleteAll cannot report failures.
+      }
+    }
   }
 
   public synchronized void closeAll() {
+    for (List<Connection> conns : pool.values()) {
+      for (Connection conn : conns) {
+        try {
+          conn.close();
+        } catch (IOException e) {
+          // ConnectionPool#closeAll cannot report failures.
+        }
+      }
+    }
     pool.clear();
   }
 }

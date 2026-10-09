@@ -2,7 +2,7 @@ package jp.co.rakuten.rit.roma.client.routing;
 
 public class RoutingInfoUpdatingThread extends Thread {
   private RoutingTable routingTable;
-  public boolean stopped = false;
+  public volatile boolean stopped = false;
   private int pollingPeriod;
 
   public RoutingInfoUpdatingThread(RoutingTable routingTable) {
@@ -16,6 +16,7 @@ public class RoutingInfoUpdatingThread extends Thread {
 
   public void doStop() {
     stopped = true;
+    interrupt();
   }
 
   @Override

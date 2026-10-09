@@ -14,9 +14,9 @@ import jp.co.rakuten.rit.roma.client.Node;
 import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 public class FailOverFilter extends AbstractCommand {
-  public static long sleepPeriod = Long
+  public static volatile long sleepPeriod = Long
       .parseLong(Config.DEFAULT_RETRY_SLEEP_TIME);
-  public static int retryThreshold = Integer
+  public static volatile int retryThreshold = Integer
       .parseInt(Config.DEFAULT_RETRY_THRESHOLD);
 
   public FailOverFilter(Command next) {
@@ -74,7 +74,9 @@ public class FailOverFilter extends AbstractCommand {
           }
           connPool.delete(node, conn);
           Thread.sleep(sleepPeriod);
-        } catch (InterruptedException e) { // ignore
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new ClientException(e);
         }
         if (retryCount < retryThreshold) {
           retryCount++;

@@ -58,12 +58,7 @@ public class GetsWithCasIDCommand extends AbstractCommand {
 
         // value
         byte[] value = new byte[valueLen];
-        int offset = 0;
-        int size = 0;
-        while (offset < valueLen) {
-          size = conn.in.read(value, offset, valueLen - offset);
-          offset = offset + size;
-        }
+        conn.in.readFully(value, 0, valueLen);
         conn.in.read(2); // "\r\n"
         values.put(key, new CasValue(cas, value));
 

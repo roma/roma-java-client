@@ -25,16 +25,18 @@ import jp.co.rakuten.rit.roma.client.routing.RoutingTable;
 
 public class GetsOptCommand extends AbstractCommand {
   private static ExecutorService executor;
+  private static final Object EXECUTOR_LOCK = new Object();
 
   public static int numOfThreads = Integer
       .parseInt(Config.DEFAULT_NUM_OF_THREADS2);
 
   public static void shutdown() {
-    if (executor != null) {
-      // executor.shutdown();
-      executor.shutdownNow();
+    synchronized (EXECUTOR_LOCK) {
+      if (executor != null) {
+        executor.shutdownNow();
+      }
+      executor = null;
     }
-    executor = null;
   }
 
   public static class CallableImpl implements Callable<Map<String, byte[]>> {
@@ -63,9 +65,13 @@ public class GetsOptCommand extends AbstractCommand {
       sb.append(STR_CRLF);
       ConnectionPool pool = (ConnectionPool) context
           .get(CommandContext.CONNECTION_POOL);
-      Connection conn = pool.get(node);
-      conn.out.write(sb.toString().getBytes());
-      conn.out.flush();
+      Connection conn = null;
+      boolean reusable = false;
+      try {
+        conn = pool.get(node);
+        conn.setTimeout((int) TimeoutFilter.timeout);
+        conn.out.write(sb.toString().getBytes());
+        conn.out.flush();
 
       HashMap<String, byte[]> values = null;
       String s;
@@ -75,7 +81,8 @@ public class GetsOptCommand extends AbstractCommand {
           values = new HashMap<String, byte[]>();
         }
       } else if (s.startsWith("END")) {
-        return values;
+        reusable = true;
+        return new HashMap<String, byte[]>();
       } else if (s.startsWith("SERVER_ERROR") || s.startsWith("CLIENT_ERROR")
           || s.startsWith("ERROR")) {
         throw new ClientException(s);
@@ -92,19 +99,29 @@ public class GetsOptCommand extends AbstractCommand {
 
         // value
         byte[] value = new byte[valueLen];
-        int offset = 0;
-        int size = 0;
-        while (offset < valueLen) {
-          size = conn.in.read(value, offset, valueLen - offset);
-          offset = offset + size;
-        }
+        conn.in.readFully(value, 0, valueLen);
         conn.in.read(2); // "\r\n"
         values.put(key, value);
 
         s = conn.in.readLine();
       } while (!s.equals("END"));
 
+      reusable = true;
       return values;
+      } finally {
+        if (conn != null) {
+          try {
+            conn.setTimeout(0);
+          } catch (Exception e) {
+            reusable = false;
+          }
+          if (reusable) {
+            pool.put(node, conn);
+          } else {
+            pool.delete(node, conn);
+          }
+        }
+      }
     }
   }
 
@@ -138,14 +155,16 @@ public class GetsOptCommand extends AbstractCommand {
       getsMap.put(node, list);
     }
 
-    if (executor == null) {
-      if (numOfThreads > 0) {
-        executor = Executors.newFixedThreadPool(numOfThreads);
-      } else {
-        executor = Executors.newCachedThreadPool();
+    ExecutorService executor0;
+    synchronized (EXECUTOR_LOCK) {
+      if (executor == null || executor.isShutdown()) {
+        if (numOfThreads > 0) {
+          executor = Executors.newFixedThreadPool(numOfThreads);
+        } else {
+          executor = Executors.newCachedThreadPool();
+        }
       }
-      // executor = Executors.newSingleThreadExecutor();
-      // executor = Executors.newCachedThreadPool();
+      executor0 = executor;
     }
 
     Future<Map<String, byte[]>>[] futures = new Future[getsMap.size()];
@@ -155,7 +174,7 @@ public class GetsOptCommand extends AbstractCommand {
       List<String> keys0 = getsMap.get(node);
 
       CallableImpl c = new CallableImpl(context, node, keys0);
-      futures[i] = executor.submit(c);
+      futures[i] = executor0.submit(c);
       i++;
     }
 
@@ -177,7 +196,9 @@ public class GetsOptCommand extends AbstractCommand {
     } catch (ExecutionException e) {
       t = e.getCause();
     } catch (InterruptedException e) {
-    } // ignore
+      Thread.currentThread().interrupt();
+      t = e;
+    }
 
     // error handling
     if (t != null) {
